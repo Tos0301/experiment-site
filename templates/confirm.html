@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>購入確認</title>
+</head>
+<body>
+    <h1>購入内容の確認</h1>
+
+    {% if cart_items %}
+        <ul>
+        {% for item in cart_items %}
+            <li>{{ item.name }} × {{ item.quantity }}個（小計：¥{{ item.subtotal }}）</li>
+        {% endfor %}
+        </ul>
+        <p><strong>合計金額：¥{{ total }}</strong></p>
+
+        <form method="post" action="/checkout">
+            <button type="submit">購入を確定する</button>
+        </form>
+    {% else %}
+        <p>カートは空です。</p>
+    {% endif %}
+
+    <a href="/cart">← カートに戻る</a>
+</body>
+</html>
