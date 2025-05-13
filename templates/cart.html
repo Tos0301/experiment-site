@@ -3,6 +3,10 @@
 <head>
     <title>カート</title>
     <script>
+        window.onload = function () {
+            updateTotal();  // 初回表示時に合計金額を自動計算
+        };
+
         function updateSubtotal(productId, price) {
             const quantityInput = document.getElementById('quantity_' + productId);
             const quantity = parseInt(quantityInput.value) || 0;
@@ -44,7 +48,7 @@
             {% endfor %}
             </ul>
 
-            <p id="total"><strong>合計金額：¥{{ total }}</strong></p>
+            <p id="total"><strong>合計金額：</strong></p>
 
             <button type="submit">数量を更新する</button>
         </form>
@@ -59,3 +63,4 @@
     <a href="/">← 商品一覧へ戻る</a>
 </body>
 </html>
+
