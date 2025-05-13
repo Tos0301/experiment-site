@@ -2,6 +2,25 @@
 <html>
 <head>
     <title>カート</title>
+    <script>
+        function updateSubtotal(productId, price) {
+            const quantityInput = document.getElementById('quantity_' + productId);
+            const quantity = parseInt(quantityInput.value) || 0;
+            const subtotal = price * quantity;
+            document.getElementById('subtotal_' + productId).innerText = '¥' + subtotal;
+
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let total = 0;
+            const subtotalElements = document.getElementsByClassName('subtotal');
+            for (let elem of subtotalElements) {
+                total += parseInt(elem.innerText.replace('¥', '')) || 0;
+            }
+            document.getElementById('total').innerText = '合計金額：¥' + total;
+        }
+    </script>
 </head>
 <body>
     <h1>カートの中身</h1>
@@ -12,11 +31,21 @@
             {% for item in cart_items %}
                 <li>
                     {{ item.name }}：
-                    <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="0">
-                    個（小計：¥{{ item.subtotal }}）
+                    <input
+                        type="number"
+                        name="quantity_{{ item.id }}"
+                        id="quantity_{{ item.id }}"
+                        value="{{ item.quantity }}"
+                        min="0"
+                        onchange="updateSubtotal('{{ item.id }}', {{ item.price }})"
+                    >
+                    個（小計：<span class="subtotal" id="subtotal_{{ item.id }}">¥{{ item.subtotal }}</span>）
                 </li>
             {% endfor %}
             </ul>
+
+            <p id="total"><strong>合計金額：¥{{ total }}</strong></p>
+
             <button type="submit">数量を更新する</button>
         </form>
 
