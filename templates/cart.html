@@ -17,12 +17,28 @@
             updateTotal();
         };
 
-        function updateSubtotal(productId, price) {
+        function updateSubtotalAndSave(productId, price) {
             const quantityInput = document.getElementById('quantity_' + productId);
             const quantity = parseInt(quantityInput.value) || 0;
+
+            // 小計表示を更新
             const subtotal = price * quantity;
             document.getElementById('subtotal_' + productId).innerText = '¥' + subtotal;
             updateTotal();
+
+            // 自動保存（POSTで更新）
+            const formData = new URLSearchParams();
+            formData.append('quantity_' + productId, quantity);
+
+            fetch('/update_cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            }).then(response => {
+                if (!response.ok) {
+                    alert('保存に失敗しました');
+                }
+            });
         }
 
         function updateTotal() {
@@ -40,49 +56,46 @@
         <h1 class="mb-4 text-center">🛒 カートの中身</h1>
 
         {% if cart_items %}
-        <form method="post" action="/update_cart">
-            <table class="table table-bordered align-middle text-center bg-white">
-                <thead class="table-secondary">
-                    <tr>
-                        <th>商品</th>
-                        <th>数量</th>
-                        <th>小計</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td class="text-start">
-                            <div class="d-flex align-items-center gap-3">
-                                <img src="{{ url_for('static', filename='images/' + item.image) }}"
-                                     alt="{{ item.name }}" class="cart-image">
-                                <span>{{ item.name }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <input type="number"
-                                   name="quantity_{{ item.id }}"
-                                   id="quantity_{{ item.id }}"
-                                   value="{{ item.quantity }}"
-                                   min="0"
-                                   class="form-control text-center"
-                                   onchange="updateSubtotal('{{ item.id }}', {{ item.price }})">
-                        </td>
-                        <td>
-                            <span class="subtotal" id="subtotal_{{ item.id }}">¥{{ item.subtotal }}</span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <table class="table table-bordered align-middle text-center bg-white">
+            <thead class="table-secondary">
+                <tr>
+                    <th>商品</th>
+                    <th>数量</th>
+                    <th>小計</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td class="text-start">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ url_for('static', filename='images/' + item.image) }}"
+                                 alt="{{ item.name }}" class="cart-image">
+                            <span>{{ item.name }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="number"
+                               name="quantity_{{ item.id }}"
+                               id="quantity_{{ item.id }}"
+                               value="{{ item.quantity }}"
+                               min="0"
+                               class="form-control text-center"
+                               onchange="updateSubtotalAndSave('{{ item.id }}', {{ item.price }})">
+                    </td>
+                    <td>
+                        <span class="subtotal" id="subtotal_{{ item.id }}">¥{{ item.subtotal }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-            <p id="total" class="fs-5 text-end fw-bold me-2">合計金額：</p>
+        <p id="total" class="fs-5 text-end fw-bold me-2">合計金額：</p>
 
-            <div class="d-flex justify-content-end gap-3">
-                <button type="submit" class="btn btn-outline-primary">数量を更新する</button>
-                <a href="/confirm" class="btn btn-success">確認画面へ進む</a>
-            </div>
-        </form>
+        <div class="d-flex justify-content-end">
+            <a href="/confirm" class="btn btn-success">確認画面へ進む</a>
+        </div>
         {% else %}
         <div class="alert alert-warning text-center" role="alert">
             カートは現在空です。
