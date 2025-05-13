@@ -14,7 +14,7 @@
             <div class="col">
                 <div class="card h-100">
                     <!-- 商品画像（仮） -->
-                    <img src="https://via.placeholder.com/300x200?text={{ product.name }}" class="card-img-top" alt="{{ product.name }}">
+                    <img src="{{ url_for('static', filename='images/' + product.image) }}" class="card-img-top" alt="{{ product.name }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text">価格：¥{{ product.price }}</p>
