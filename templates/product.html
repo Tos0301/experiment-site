@@ -68,16 +68,24 @@
                     <img src="{{ url_for('static', filename='images/' + product.image) }}"
                          alt="{{ product.name }}" class="img-fluid mb-4" style="max-height: 300px;">
                 </div>
-                <h2>{{ product.name }}</h2>
-                <p class="fs-4 text-muted">¥{{ product.price }}</p>
+                <h2 class="text-center">{{ product.name }}</h2>
+                <p class="fs-4 text-muted text-center">¥{{ product.price }}</p>
 
+                <!-- 配置切替フォーム -->
                 <form onsubmit="addToCart(event, '{{ product.id }}')"
-                      class="d-flex gap-2 mb-4 {% if group == 'exp' %}justify-content-start{% else %}justify-content-center{% endif %}">
-                    <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control w-auto text-center">
-                    <button type="submit" class="btn btn-success btn-lg">カートに追加</button>
+                      class="d-flex mb-4 gap-2 {% if group == 'exp' %}justify-content-start{% else %}justify-content-center{% endif %} align-items-center">
+                    {% if group == 'exp' %}
+                        <button type="submit" class="btn btn-success btn-lg">カートに追加</button>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1"
+                               class="form-control w-auto text-center">
+                    {% else %}
+                        <input type="number" id="quantity" name="quantity" value="1" min="1"
+                               class="form-control w-auto text-center">
+                        <button type="submit" class="btn btn-success btn-lg">カートに追加</button>
+                    {% endif %}
                 </form>
 
-                <div class="{% if group == 'exp' %}text-start{% else %}text-center{% endif %}">
+                <div class="text-center">
                     <a href="/" class="btn btn-outline-secondary">← 商品一覧に戻る</a>
                 </div>
             </div>
