@@ -7,13 +7,18 @@
     <h1>カートの中身</h1>
 
     {% if cart_items %}
-        <ul>
-        {% for item in cart_items %}
-            <li>
-                {{ item.name }} × {{ item.quantity }}個（小計：¥{{ item.subtotal }}）
-            </li>
-        {% endfor %}
-        </ul>
+        <form method="post" action="/update_cart">
+            <ul>
+            {% for item in cart_items %}
+                <li>
+                    {{ item.name }}：
+                    <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="0">
+                    個（小計：¥{{ item.subtotal }}）
+                </li>
+            {% endfor %}
+            </ul>
+            <button type="submit">数量を更新する</button>
+        </form>
 
         <form action="/confirm">
             <button type="submit">確認画面へ進む</button>

@@ -78,6 +78,20 @@ def confirm():
             cart_items.append(product)
     return render_template('confirm.html', cart_items=cart_items, total=total_price)
 
+@app.route('/update_cart', methods=['POST'])
+def update_cart():
+    cart = session.get('cart', {})
+    updated_cart = {}
+    for product_id in cart:
+        key = f'quantity_{product_id}'
+        quantity = int(request.form.get(key, 0))
+        if quantity > 0:
+            updated_cart[product_id] = quantity
+    session['cart'] = updated_cart
+    log_action('update_cart', {'updated_cart': updated_cart})
+    return redirect('/cart')
+
+
 @app.route('/checkout', methods=['POST'])
 def checkout():
     log_action('checkout')
