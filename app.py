@@ -1,103 +1,102 @@
-from flask import Flask, render_template, request, redirect, session
-import csv, os
-from datetime import datetime
+from flask import Flask, render_template, request, redirect, session, url_for
+import csv
 
 app = Flask(__name__)
-app.secret_key = 'experiment_secret'
+app.secret_key = 'your-secret-key'
 
-# 商品データ読み込み
+# 商品情報の読み込み
 def load_products():
     with open('data/products.csv', encoding='utf-8') as f:
-        return list(csv.DictReader(f))
+        reader = csv.DictReader(f)
+        return [row for row in reader]
 
-# ログ記録
-def log_action(action, product_id=None, quantity=None):
-    log_file = 'data/log.csv'
-    with open(log_file, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            session.get('participant_id', 'unknown'),
-            session.get('group', 'unknown'),
-            datetime.now().isoformat(),
-            action,
-            product_id,
-            quantity
-        ])
-
+# 商品一覧ページ
 @app.route('/')
 def index():
     products = load_products()
     return render_template('index.html', products=products)
 
+# 商品詳細ページ
 @app.route('/product/<product_id>')
-def product(product_id):
-    group = request.args.get('group', 'ctrl')
-    session['group'] = group
-    session['participant_id'] = request.args.get('id', 'anon')
+def product_detail(product_id):
     products = load_products()
     product = next((p for p in products if p['id'] == product_id), None)
-    log_action('view', product_id)
-    return render_template('product.html', product=product, group=group)
+    return render_template('product.html', product=product)
 
+# カートに追加
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     product_id = request.form['product_id']
     quantity = int(request.form['quantity'])
-    cart = session.get('cart', {})
+
+    if 'cart' not in session:
+        session['cart'] = {}
+    cart = session['cart']
     cart[product_id] = cart.get(product_id, 0) + quantity
     session['cart'] = cart
-    log_action('add_to_cart', product_id, quantity)
-    return redirect('/cart')
 
+    return ('', 204)  # 成功時は何も返さない
+
+# カートページ
 @app.route('/cart')
 def cart():
     products = load_products()
     cart = session.get('cart', {})
     cart_items = []
-    for pid, qty in cart.items():
-        product = next((p for p in products if p['id'] == pid), None)
-        if product:
-            product['quantity'] = qty
-            product['subtotal'] = int(product['price']) * qty
-            cart_items.append(product)
-    return render_template('cart.html', cart_items=cart_items)
+    total = 0
 
-@app.route('/confirm')
-def confirm():
-    products = load_products()
-    cart = session.get('cart', {})
-    cart_items = []
-    total_price = 0
-    for pid, qty in cart.items():
-        product = next((p for p in products if p['id'] == pid), None)
-        if product:
-            subtotal = int(product['price']) * qty
-            total_price += subtotal
-            product['quantity'] = qty
-            product['subtotal'] = subtotal
-            cart_items.append(product)
-    return render_template('confirm.html', cart_items=cart_items, total=total_price)
+    for p in products:
+        pid = p['id']
+        if pid in cart:
+            quantity = cart[pid]
+            subtotal = int(p['price']) * quantity
+            total += subtotal
+            cart_items.append({
+                'id': pid,
+                'name': p['name'],
+                'price': int(p['price']),
+                'image': p['image'],
+                'quantity': quantity,
+                'subtotal': subtotal
+            })
 
+    return render_template('cart.html', cart_items=cart_items, total=total)
+
+# カート数量更新
 @app.route('/update_cart', methods=['POST'])
 def update_cart():
     cart = session.get('cart', {})
-    updated_cart = {}
-    for product_id in cart:
-        key = f'quantity_{product_id}'
-        quantity = int(request.form.get(key, 0))
-        if quantity > 0:
-            updated_cart[product_id] = quantity
-    session['cart'] = updated_cart
-    log_action('update_cart', {'updated_cart': updated_cart})
+    for key, value in request.form.items():
+        if key.startswith('quantity_'):
+            product_id = key.replace('quantity_', '')
+            cart[product_id] = int(value)
+    session['cart'] = cart
     return redirect('/cart')
 
+# 確認画面
+@app.route('/confirm')
+def confirm():
+    cart = session.get('cart', {})
+    products = load_products()
+    cart_items = []
+    total = 0
+    for p in products:
+        if p['id'] in cart:
+            quantity = cart[p['id']]
+            subtotal = int(p['price']) * quantity
+            total += subtotal
+            cart_items.append({
+                'name': p['name'],
+                'quantity': quantity,
+                'subtotal': subtotal
+            })
+    return render_template('confirm.html', cart_items=cart_items, total=total)
 
+# 注文完了
 @app.route('/checkout', methods=['POST'])
 def checkout():
-    log_action('checkout')
-    session.clear()
+    session.pop('cart', None)
     return render_template('thanks.html')
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 1000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
