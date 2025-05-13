@@ -1,22 +1,71 @@
 <!DOCTYPE html>
 <html>
-<head><title>{{ product.name }}</title></head>
+<head>
+    <title>{{ product.name }}</title>
+    <style>
+        #cart-icon {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        #cart-badge {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 4px 8px;
+            font-size: 14px;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            display: none;
+        }
+    </style>
+    <script>
+        function addToCart(event, productId) {
+            event.preventDefault();
+
+            const quantity = document.getElementById("quantity").value;
+
+            fetch("/add_to_cart", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `product_id=${productId}&quantity=${quantity}`
+            }).then(response => {
+                if (response.ok) {
+                    updateCartBadge(quantity);
+                } else {
+                    alert("カートへの追加に失敗しました。");
+                }
+            });
+        }
+
+        function updateCartBadge(quantity) {
+            const badge = document.getElementById("cart-badge");
+            let current = parseInt(badge.innerText || "0");
+            badge.innerText = current + parseInt(quantity);
+            badge.style.display = "inline-block";
+        }
+    </script>
+</head>
 <body>
-  <h2>{{ product.name }}</h2>
-  <p>価格: ¥{{ product.price }}</p>
+    <!-- カートアイコンとバッジ -->
+    <div id="cart-icon" onclick="window.location.href='/cart'">
+        🛒<span id="cart-badge">0</span>
+    </div>
 
-  <div style="position: relative; height: 150px;">
-    {% if group == 'exp' %}
-    <form method="post" action="/add_to_cart" style="position:absolute; bottom:10px; left:10px;">
-    {% else %}
-    <form method="post" action="/add_to_cart" style="position:absolute; bottom:10px; right:10px;">
-    {% endif %}
-      <input type="hidden" name="product_id" value="{{ product.id }}">
-      <input type="number" name="quantity" value="1" min="1">
-      <button type="submit">カートに追加</button>
+    <h2>{{ product.name }}</h2>
+    <p>価格: ¥{{ product.price }}</p>
+
+    <!-- 購入フォーム -->
+    <form onsubmit="addToCart(event, '{{ product.id }}')">
+        <input type="number" id="quantity" name="quantity" value="1" min="1">
+        <button type="submit">カートに追加</button>
     </form>
-  </div>
 
-  <a href="/">← 戻る</a>
+    <a href="/">← 戻る</a>
 </body>
 </html>
