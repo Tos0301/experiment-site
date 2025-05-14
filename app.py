@@ -4,6 +4,12 @@ import csv
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'
 
+# ✅ すべてのテンプレートでカートの合計数量を使えるようにする
+@app.context_processor
+def inject_cart_count():
+    count = sum(session.get("cart", {}).values())
+    return dict(cart_count=count)
+
 # 商品情報の読み込み
 def load_products():
     with open('data/products.csv', encoding='utf-8') as f:
@@ -16,7 +22,7 @@ def index():
     products = load_products()
     return render_template('index.html', products=products)
 
-# 商品詳細ページ（group削除済）
+# 商品詳細ページ
 @app.route('/product/<product_id>')
 def product_detail(product_id):
     products = load_products()
@@ -98,7 +104,6 @@ def checkout():
     session.pop('cart', None)
     return render_template('thanks.html')
 
-# ✅ Render用：ポートとホストの明示的設定
+# ✅ Render用ポート設定
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
-
