@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session
 import csv
 
 app = Flask(__name__)
@@ -10,13 +10,13 @@ def load_products():
         reader = csv.DictReader(f)
         return [row for row in reader]
 
-# 商品一覧ページ
+# トップページ（商品一覧）
 @app.route('/')
 def index():
     products = load_products()
     return render_template('index.html', products=products)
 
-# 商品詳細ページ
+# 商品詳細ページ（groupなし）
 @app.route('/product/<product_id>')
 def product_detail(product_id):
     products = load_products()
@@ -35,7 +35,7 @@ def add_to_cart():
     cart[product_id] = cart.get(product_id, 0) + quantity
     session['cart'] = cart
 
-    return ('', 204)  # 成功時は何も返さない
+    return ('', 204)
 
 # カートページ
 @app.route('/cart')
@@ -92,7 +92,7 @@ def confirm():
             })
     return render_template('confirm.html', cart_items=cart_items, total=total)
 
-# 注文完了
+# 購入完了
 @app.route('/checkout', methods=['POST'])
 def checkout():
     session.pop('cart', None)
