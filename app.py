@@ -16,14 +16,14 @@ def index():
     products = load_products()
     return render_template('index.html', products=products)
 
-# 商品詳細ページ（groupなし）
+# 商品詳細ページ（group削除済）
 @app.route('/product/<product_id>')
 def product_detail(product_id):
     products = load_products()
     product = next((p for p in products if p['id'] == product_id), None)
     return render_template('product.html', product=product)
 
-# カートに追加
+# カートに追加（POST）
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     product_id = request.form['product_id']
@@ -37,7 +37,7 @@ def add_to_cart():
 
     return ('', 204)
 
-# カートページ
+# カートページ表示
 @app.route('/cart')
 def cart():
     products = load_products()
@@ -62,7 +62,7 @@ def cart():
 
     return render_template('cart.html', cart_items=cart_items, total=total)
 
-# カート数量更新
+# カートの数量更新
 @app.route('/update_cart', methods=['POST'])
 def update_cart():
     cart = session.get('cart', {})
@@ -98,5 +98,7 @@ def checkout():
     session.pop('cart', None)
     return render_template('thanks.html')
 
+# ✅ Render用：ポートとホストの明示的設定
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=10000)
+
