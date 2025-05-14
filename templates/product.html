@@ -71,13 +71,13 @@
                 <h2 class="text-center">{{ product.name }}</h2>
                 <p class="fs-4 text-muted text-center">¥{{ product.price }}</p>
 
-                <!-- ✅ 整形：左にボタン、右に少し広めのバー -->
-                <form onsubmit="addToCart(event, '{{ product.id }}')" class="d-flex mb-4 gap-3 justify-content-start align-items-center">
+                <form onsubmit="addToCart(event, '{{ product.id }}')" 
+                    class="d-flex mb-4 gap-3 justify-content-center align-items-center">
                     <button type="submit" class="btn btn-success btn-lg">カートに追加</button>
                     <input type="number" id="quantity" name="quantity" value="1" min="1"
-                           class="form-control text-center"
-                           style="min-width: 120px; max-width: 180px;">
+                    class="form-control w-50 text-center">
                 </form>
+
 
                 <div class="text-center">
                     <a href="/" class="btn btn-outline-secondary">← 商品一覧に戻る</a>
