@@ -4,107 +4,54 @@
     <meta charset="UTF-8">
     <title>カート</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        .cart-image {
-            width: 80px;
-            height: auto;
-        }
-    </style>
-
-    <script>
-        window.onload = function () {
-            updateTotal();
-        };
-
-        function updateSubtotalAndSave(productId, price) {
-            const quantityInput = document.getElementById('quantity_' + productId);
-            const quantity = parseInt(quantityInput.value) || 0;
-
-            // 小計表示を更新
-            const subtotal = price * quantity;
-            document.getElementById('subtotal_' + productId).innerText = '¥' + subtotal;
-            updateTotal();
-
-            // 自動保存（POSTで更新）
-            const formData = new URLSearchParams();
-            formData.append('quantity_' + productId, quantity);
-
-            fetch('/update_cart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData
-            }).then(response => {
-                if (!response.ok) {
-                    alert('保存に失敗しました');
-                }
-            });
-        }
-
-        function updateTotal() {
-            let total = 0;
-            const subtotals = document.getElementsByClassName('subtotal');
-            for (let elem of subtotals) {
-                total += parseInt(elem.innerText.replace('¥', '')) || 0;
-            }
-            document.getElementById('total').innerText = '合計金額：¥' + total;
-        }
-    </script>
 </head>
 <body class="bg-light">
+
+    {% include 'cart_icon.html' %}
+
     <div class="container mt-5">
-        <h1 class="mb-4 text-center">🛒 カートの中身</h1>
-
-        {% if cart_items %}
-        <table class="table table-bordered align-middle text-center bg-white">
-            <thead class="table-secondary">
-                <tr>
-                    <th>商品</th>
-                    <th>数量</th>
-                    <th>小計</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart_items %}
-                <tr>
-                    <td class="text-start">
-                        <div class="d-flex align-items-center gap-3">
+        <h1 class="mb-4 text-center"><span style="font-size: 1.5em;">🛒</span> カートの中身</h1>
+        <form method="POST" action="{{ url_for('update_cart') }}">
+            <table class="table table-bordered bg-white">
+                <thead class="table-light">
+                    <tr>
+                        <th>商品</th>
+                        <th>数量</th>
+                        <th>小計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td class="d-flex align-items-center">
                             <img src="{{ url_for('static', filename='images/' + item.image) }}"
-                                 alt="{{ item.name }}" class="cart-image">
+                                 alt="{{ item.name }}" width="80" class="me-3">
                             <span>{{ item.name }}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <input type="number"
-                               name="quantity_{{ item.id }}"
-                               id="quantity_{{ item.id }}"
-                               value="{{ item.quantity }}"
-                               min="0"
-                               class="form-control text-center"
-                               onchange="updateSubtotalAndSave('{{ item.id }}', {{ item.price }})">
-                    </td>
-                    <td>
-                        <span class="subtotal" id="subtotal_{{ item.id }}">¥{{ item.subtotal }}</span>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        <td>
+                            <input type="number" name="quantities[{{ item.id }}]" value="{{ item.quantity }}"
+                                   min="1" class="form-control text-center" onchange="this.form.submit()">
+                        </td>
+                        <td>¥{{ item.price * item.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <!-- ✅ 確認ボタンを画像下・合計金額の左に -->
+                        <td class="text-start pt-4">
+                            <a href="{{ url_for('confirm') }}" class="btn btn-success">確認画面へ進む</a>
+                        </td>
+                        <td colspan="2" class="text-end fw-bold pt-4">
+                            合計金額：¥{{ total }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
 
-        <p id="total" class="fs-5 text-end fw-bold me-2">合計金額：</p>
-
-        <div class="d-flex justify-content-end">
-            <a href="/confirm" class="btn btn-success">確認画面へ進む</a>
-        </div>
-        {% else %}
-        <div class="alert alert-warning text-center" role="alert">
-            カートは現在空です。
-        </div>
-        {% endif %}
-
-        <div class="mt-4 text-center">
-            <a href="/" class="btn btn-outline-secondary">← 商品一覧へ戻る</a>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">← 商品一覧へ戻る</a>
         </div>
     </div>
+
 </body>
 </html>
