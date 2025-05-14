@@ -71,13 +71,12 @@
                 <h2 class="text-center">{{ product.name }}</h2>
                 <p class="fs-4 text-muted text-center">¥{{ product.price }}</p>
 
-                <!-- ✅ 左にボタン、右に数量バー。フォーム全体は左寄せ -->
-                <form onsubmit="addToCart(event, '{{ product.id }}')"
-                      class="d-flex mb-4 gap-2 align-items-center"
-                      style="margin-left: 10%; width: fit-content;">
+                <!-- ✅ 整形：左にボタン、右に少し広めのバー -->
+                <form onsubmit="addToCart(event, '{{ product.id }}')" class="d-flex mb-4 gap-3 justify-content-start align-items-center">
                     <button type="submit" class="btn btn-success btn-lg">カートに追加</button>
                     <input type="number" id="quantity" name="quantity" value="1" min="1"
-                           class="form-control w-auto text-center">
+                           class="form-control text-center"
+                           style="min-width: 120px; max-width: 180px;">
                 </form>
 
                 <div class="text-center">
