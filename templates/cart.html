@@ -11,6 +11,7 @@
 
     <div class="container mt-5">
         <h1 class="mb-4 text-center"><span style="font-size: 1.5em;">🛒</span> カートの中身</h1>
+
         <form method="POST" action="{{ url_for('update_cart') }}">
             <table class="table table-bordered bg-white">
                 <thead class="table-light">
@@ -36,19 +37,15 @@
                     </tr>
                     {% endfor %}
                     <tr>
-                        <!-- ✅ 確認ボタンを画像下・合計金額の左に -->
-                        <td class="text-start pt-4">
-                            <a href="{{ url_for('confirm') }}" class="btn btn-success">確認画面へ進む</a>
-                        </td>
-                        <td colspan="2" class="text-end fw-bold pt-4">
-                            合計金額：¥{{ total }}
-                        </td>
+                        <td colspan="3" class="text-end fw-bold">合計金額：¥{{ total }}</td>
                     </tr>
                 </tbody>
             </table>
         </form>
 
-        <div class="text-center mt-4">
+        <!-- ✅ テーブルの外に左寄せで表示 -->
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{{ url_for('confirm') }}" class="btn btn-success">確認画面へ進む</a>
             <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">← 商品一覧へ戻る</a>
         </div>
     </div>
