@@ -100,10 +100,14 @@ def update_quantity():
     product_id = request.form['product_id']
     quantity = int(request.form['quantity'])
     cart = session.get('cart', {})
-    if product_id in cart:
+    if quantity > 0:
         cart[product_id] = quantity
-        session['cart'] = cart
         log_action("数量更新", product_id=product_id, quantity=quantity, page="カート")
+    else:
+        cart.pop(product_id, None)  # 0の場合は削除
+        log_action("商品削除", product_id=product_id, quantity=0, page="カート")
+
+    session['cart'] = cart
     return redirect(url_for('cart'))
 
 # ==== 購入確認ページ ====
@@ -133,8 +137,41 @@ def confirm():
 @app.route('/thanks', methods=['POST'])
 def thanks():
     cart = session.get('cart', {})
+    products = load_products()
+
+    product_names = []
+    quantities = []
+    subtotals = []
+    total = 0
+
+    for pid, qty in cart.items():
+        product = next((p for p in products if p['id'] == pid), None)
+        if product:
+            name = product['name']
+            price = int(product['price'])
+            subtotal = price * qty
+
+            product_names.append(name)
+            quantities.append(str(qty))
+            subtotals.append(str(subtotal))
+            total += subtotal
+
+    # 各列の値を連結して記録（必要に応じて JSON 形式にもできます）
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    action = "購入完了"
+    page = "完了ページ"
+
+    SHEET.append_row([
+        timestamp,
+        action,
+        total,
+        " / ".join(product_names),
+        " / ".join(quantities),
+        " / ".join(subtotals),
+        page
+    ])
+
     session['cart'] = {}
-    log_action("購入完了", page="完了ページ")
     return render_template('thanks.html')
 
 # ==== 戻るボタンログ ====
