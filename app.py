@@ -120,6 +120,7 @@ def confirm():
                 'subtotal': subtotal
             })
             total += subtotal
+    log_action("注文確認画面へ遷移", page="確認")
     return render_template('confirm.html', cart_items=cart_items, total=total)
 
 # ==== 購入完了ページ ====
@@ -135,6 +136,12 @@ def thanks():
 def back_to_index():
     log_action("商品一覧へ戻る", page="ボタン操作")
     return redirect(url_for('index'))
+
+@app.route('/back_to_cart', methods=['POST'])
+def back_to_cart():
+    log_action("カートに戻る", page="確認画面")
+    return redirect(url_for('cart'))
+
 
 # ==== ポート指定して起動（Render向け） ====
 if __name__ == '__main__':
