@@ -86,7 +86,7 @@ def cart():
                 'subtotal': subtotal
             })
             total += subtotal
-    return render_template('cart.html', cart_items=cart_items, total=total)
+    return render_template('cart.html', cart_items=cart_items, total=total, cart_count=len(cart))
 
 # ==== 数量更新 ====
 @app.route('/update_quantity', methods=['POST'])
