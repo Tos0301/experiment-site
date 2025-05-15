@@ -1,5 +1,8 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import csv
+import os
+import io
+import base64
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
@@ -7,123 +10,125 @@ from google.oauth2.service_account import Credentials
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'
 
-# ✅ Google Sheets API 連携設定
+# ==== Google Sheets 連携設定 ====
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SERVICE_ACCOUNT_FILE = 'experimentlogging-90510cddec06.json'  # ← 必要に応じてファイル名変更
-SPREADSHEET_NAME = 'ExperimentLogs'        # ← Sheetsの実名に合わせて変更
+SPREADSHEET_NAME = 'ExperimentLogs'
 
-creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-client = gspread.authorize(creds)
-SHEET = client.open(SPREADSHEET_NAME).sheet1
+encoded_credentials = os.environ.get("GOOGLE_CREDENTIALS_BASE64")
+if encoded_credentials:
+    decoded = base64.b64decode(encoded_credentials).decode('utf-8')
+    credentials_json = io.StringIO(decoded)
+    creds = Credentials.from_service_account_info(eval(credentials_json.read()), scopes=SCOPES)
+    client = gspread.authorize(creds)
+    SHEET = client.open(SPREADSHEET_NAME).sheet1
+else:
+    SHEET = None  # デプロイエラー回避のため
 
-# ✅ ログ記録関数（Google Sheets に送信）
-def log_action(action, product_id='', quantity='', page=''):
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    SHEET.append_row([timestamp, action, product_id, quantity, page])
+# ==== ログ記録関数 ====
+def log_action(action, product_id="", quantity="", page=""):
+    if SHEET:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        SHEET.append_row([timestamp, action, product_id, quantity, page])
 
-# ✅ 商品情報の読み込み
+# ==== CSV読込 ====
 def load_products():
     with open('data/products.csv', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        return [row for row in reader]
+        return list(reader)
 
-# ✅ 商品一覧ページ
+# ==== 商品一覧 ====
 @app.route('/')
 def index():
     products = load_products()
-    log_action('view_index', page='index')
+    log_action("アクセス", page="商品一覧")
     return render_template('index.html', products=products)
 
-# ✅ 商品詳細ページ
+# ==== 商品詳細 ====
 @app.route('/product/<product_id>')
 def product_detail(product_id):
     products = load_products()
     product = next((p for p in products if p['id'] == product_id), None)
-    log_action('view_product', product_id=product_id, page='product')
+    if not product:
+        return "商品が見つかりません", 404
+    log_action("アクセス", product_id=product_id, page="商品詳細")
     return render_template('product.html', product=product)
 
-# ✅ カートに追加
+# ==== カートに追加 ====
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     product_id = request.form['product_id']
     quantity = int(request.form['quantity'])
 
-    log_action('add_to_cart', product_id, quantity, page='product')
-
-    if 'cart' not in session:
-        session['cart'] = {}
-    cart = session['cart']
+    cart = session.get('cart', {})
     cart[product_id] = cart.get(product_id, 0) + quantity
     session['cart'] = cart
 
-    return ('', 204)
+    log_action("カート追加", product_id=product_id, quantity=quantity, page="カート")
 
-# ✅ カートページ
+    return '', 204
+
+# ==== カート表示 ====
 @app.route('/cart')
 def cart():
-    products = load_products()
     cart = session.get('cart', {})
+    products = load_products()
     cart_items = []
     total = 0
 
-    log_action('view_cart', page='cart')
-
-    for p in products:
-        pid = p['id']
-        if pid in cart:
-            quantity = cart[pid]
-            subtotal = int(p['price']) * quantity
+    for pid, qty in cart.items():
+        product = next((p for p in products if p['id'] == pid), None)
+        if product:
+            subtotal = int(product['price']) * qty
+            cart_items.append({'product': product, 'quantity': qty, 'subtotal': subtotal})
             total += subtotal
-            cart_items.append({
-                'id': pid,
-                'name': p['name'],
-                'price': int(p['price']),
-                'image': p['image'],
-                'quantity': quantity,
-                'subtotal': subtotal
-            })
 
+    log_action("アクセス", page="カート")
     return render_template('cart.html', cart_items=cart_items, total=total)
 
-# ✅ カート数量更新
-@app.route('/update_cart', methods=['POST'])
-def update_cart():
-    cart = session.get('cart', {})
-    for key, value in request.form.items():
-        if key.startswith('quantity_'):
-            product_id = key.replace('quantity_', '')
-            cart[product_id] = int(value)
-            log_action('update_quantity', product_id, value, page='cart')
-    session['cart'] = cart
-    return redirect('/cart')
+# ==== 数量更新 ====
+@app.route('/update_quantity', methods=['POST'])
+def update_quantity():
+    product_id = request.form['product_id']
+    quantity = int(request.form['quantity'])
 
-# ✅ 確認画面
+    cart = session.get('cart', {})
+    if product_id in cart:
+        cart[product_id] = quantity
+        session['cart'] = cart
+        log_action("数量更新", product_id=product_id, quantity=quantity, page="カート")
+    return redirect(url_for('cart'))
+
+# ==== カート → 確認画面 ====
 @app.route('/confirm')
 def confirm():
     cart = session.get('cart', {})
     products = load_products()
     cart_items = []
     total = 0
-    for p in products:
-        if p['id'] in cart:
-            quantity = cart[p['id']]
-            subtotal = int(p['price']) * quantity
+
+    for pid, qty in cart.items():
+        product = next((p for p in products if p['id'] == pid), None)
+        if product:
+            subtotal = int(product['price']) * qty
+            cart_items.append({'product': product, 'quantity': qty, 'subtotal': subtotal})
             total += subtotal
-            cart_items.append({
-                'name': p['name'],
-                'quantity': quantity,
-                'subtotal': subtotal
-            })
-    log_action('proceed_to_confirm', page='cart')
+
+    log_action("アクセス", page="確認画面")
     return render_template('confirm.html', cart_items=cart_items, total=total)
 
-# ✅ 購入完了
-@app.route('/checkout', methods=['POST'])
-def checkout():
-    log_action('checkout_complete', page='confirm')
-    session.pop('cart', None)
+# ==== 購入完了 ====
+@app.route('/thanks', methods=['POST'])
+def thanks():
+    cart = session.get('cart', {})
+    session['cart'] = {}
+    log_action("購入完了", page="完了ページ")
     return render_template('thanks.html')
 
-# ✅ ローカル実行用
+# ==== 商品一覧に戻る（ログ用） ====
+@app.route('/back_to_index')
+def back_to_index():
+    log_action("商品一覧に戻る", page="ボタン操作")
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(debug=True)
