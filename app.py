@@ -29,6 +29,12 @@ def log_action(action, product_id='', quantity='', page=''):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     SHEET.append_row([timestamp, action, product_id, quantity, page])
 
+@app.context_processor
+def inject_cart_count():
+    cart = session.get('cart', {})
+    count = sum(cart.values())
+    return dict(cart_count=count)
+
 # ==== 商品データ読み込み ====
 def load_products():
     products = []
