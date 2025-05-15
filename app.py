@@ -175,7 +175,7 @@ def thanks():
     return render_template('thanks.html')
 
 # ==== 戻るボタンログ ====
-@app.route('/back_to_index')
+@app.route('/back_to_index', methods=['GET', 'POST'])
 def back_to_index():
     log_action("商品一覧へ戻る", page="ボタン操作")
     return redirect(url_for('index'))

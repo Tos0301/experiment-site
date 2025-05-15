@@ -52,8 +52,8 @@
         </tbody>
     </table>
 
-    <div class="d-flex justify-content-between align-items-center">
-        <form method="POST" action="{{ url_for('back_to_index') }}">
+    <div class="d-flex align-items-center">
+        <form method="GET" action="{{ url_for('back_to_index') }}" class="me-auto">
             <button type="submit" class="btn btn-outline-secondary">← 商品一覧へ戻る</button>
         </form>
 
