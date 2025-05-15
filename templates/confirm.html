@@ -37,7 +37,9 @@
             <form method="POST" action="{{ url_for('thanks') }}">
                 <button type="submit" class="btn btn-success">注文を確定する</button>
             </form>
-            <a href="/cart" class="btn btn-outline-secondary">← カートに戻る</a>
+            <form action="{{ url_for('back_to_cart') }}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline-secondary">← カートに戻る</button>
+            </form>
         </div>
 
         {% else %}
