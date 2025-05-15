@@ -15,9 +15,9 @@ SPREADSHEET_NAME = 'ExperimentLogs'
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # base64から認証ファイル復元（Render環境用）
-b64_content = os.getenv('GOOGLE_SERVICE_KEY_BASE64')
+b64_content = os.getenv('GOOGLE_CREDENTIALS')
 if b64_content:
-    with open(SERVICE_ACCOUNT_FILE, 'wb') as f:
+    with open('credentials.json', 'wb') as f:
         f.write(base64.b64decode(b64_content))
 
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
