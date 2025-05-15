@@ -4,49 +4,78 @@
     <meta charset="UTF-8">
     <title>カート</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .cart-table img {
+            max-height: 100px;
+        }
+        #cart-icon {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        #cart-badge {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 4px 8px;
+            font-size: 14px;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+        }
+    </style>
 </head>
 <body class="bg-light">
 
-    {% include 'cart_icon.html' %}
+    <!-- カートアイコン -->
+    <div id="cart-icon" onclick="window.location.href='/cart'">
+        🛒<span id="cart-badge">{{ session['cart'] | length if session.get('cart') else 0 }}</span>
+    </div>
 
     <div class="container mt-5">
-        <h1 class="mb-4 text-center"><span style="font-size: 1.5em;">🛒</span> カートの中身</h1>
+        <h1 class="text-center mb-4">🛒 カートの中身</h1>
+        <table class="table cart-table">
+            <thead class="table-light">
+                <tr>
+                    <th>商品</th>
+                    <th>数量</th>
+                    <th>小計</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.name }}">
+                        <br>{{ item.name }}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('update_quantity') }}" method="POST" class="d-flex align-items-center gap-2">
+                            <input type="hidden" name="product_id" value="{{ item.id }}">
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control w-50 text-center">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">更新</button>
+                        </form>
+                    </td>
+                    <td>¥{{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>
+                        <form action="/thanks" method="POST">
+                            <button type="submit" class="btn btn-success">確認画面へ進む</button>
+                        </form>
+                    </td>
+                    <td colspan="2" class="text-end fw-bold">合計金額：¥{{ total }}</td>
+                </tr>
+            </tfoot>
+        </table>
 
-        <form method="POST" action="{{ url_for('update_cart') }}">
-            <table class="table table-bordered bg-white">
-                <thead class="table-light">
-                    <tr>
-                        <th>商品</th>
-                        <th>数量</th>
-                        <th>小計</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td class="d-flex align-items-center">
-                            <img src="{{ url_for('static', filename='images/' + item.image) }}"
-                                 alt="{{ item.name }}" width="80" class="me-3">
-                            <span>{{ item.name }}</span>
-                        </td>
-                        <td>
-                            <input type="number" name="quantities[{{ item.id }}]" value="{{ item.quantity }}"
-                                   min="1" class="form-control text-center" onchange="this.form.submit()">
-                        </td>
-                        <td>¥{{ item.price * item.quantity }}</td>
-                    </tr>
-                    {% endfor %}
-                    <tr>
-                        <td colspan="3" class="text-end fw-bold">合計金額：¥{{ total }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
-
-        <!-- ✅ テーブルの外に左寄せで表示 -->
-        <div class="d-flex justify-content-between mt-3">
-            <a href="{{ url_for('confirm') }}" class="btn btn-success">確認画面へ進む</a>
-            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">← 商品一覧へ戻る</a>
+        <div class="text-center mt-4">
+            <a href="/back_to_index" class="btn btn-outline-secondary">← 商品一覧へ戻る</a>
         </div>
     </div>
 
