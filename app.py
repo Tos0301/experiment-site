@@ -22,7 +22,7 @@ if b64_content:
 
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 client = gspread.authorize(creds)
-SHEET = client.open(SPREADSHEET_NAME).sheet1
+SHEET = client.open_by_key('1KNZ49or81ECH9EVXYeKjAv-ooSnXMbP3dC10e2gQR3g').sheet1
 
 # ==== ログ記録関数 ====
 def log_action(action, product_id='', quantity='', page=''):
