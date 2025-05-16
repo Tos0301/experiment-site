@@ -1,0 +1,15 @@
+<!-- templates/input_id.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>参加者IDの入力</title>
+</head>
+<body>
+    <h1>参加者IDを入力してください</h1>
+    <form method="POST" action="{{ url_for('set_participant_id') }}">
+        <input type="text" name="participant_id" required>
+        <button type="submit">開始</button>
+    </form>
+</body>
+</html>

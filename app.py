@@ -27,13 +27,24 @@ SHEET = client.open_by_key('1KNZ49or81ECH9EVXYeKjAv-ooSnXMbP3dC10e2gQR3g').sheet
 # ==== ログ記録関数 ====
 def log_action(action, product_id='', quantity='', page=''):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    SHEET.append_row([timestamp, action, product_id, quantity, page])
+    participant_id = session.get('participant_id', 'unknown')
+    SHEET.append_row([timestamp, participant_id, action, product_id, quantity, page])
 
-@app.context_processor
-def inject_cart_count():
-    cart = session.get('cart', {})
-    count = sum(cart.values())
-    return dict(cart_count=count)
+# ==== ID入力ページ ====
+@app.route('/')
+def root():
+    return redirect(url_for('input_id'))
+
+@app.route('/input_id')
+def input_id():
+    return render_template('input_id.html')
+
+@app.route('/set_id', methods=['POST'])
+def set_participant_id():
+    participant_id = request.form.get('participant_id')
+    session['participant_id'] = participant_id
+    log_action("ID登録", page="ID入力")
+    return redirect(url_for('index'))
 
 # ==== 商品データ読み込み ====
 def load_products():
@@ -45,7 +56,7 @@ def load_products():
     return products
 
 # ==== 商品一覧ページ ====
-@app.route('/')
+@app.route('/index')
 def index():
     products = load_products()
     log_action("商品一覧表示", page="一覧")
@@ -92,7 +103,7 @@ def cart():
                 'subtotal': subtotal
             })
             total += subtotal
-    return render_template('cart.html', cart_items=cart_items, total=total, cart_count=len(cart))
+    return render_template('cart.html', cart_items=cart_items, total=total)
 
 # ==== 数量更新 ====
 @app.route('/update_quantity', methods=['POST'])
@@ -104,9 +115,8 @@ def update_quantity():
         cart[product_id] = quantity
         log_action("数量更新", product_id=product_id, quantity=quantity, page="カート")
     else:
-        cart.pop(product_id, None)  # 0の場合は削除
+        cart.pop(product_id, None)
         log_action("商品削除", product_id=product_id, quantity=0, page="カート")
-
     session['cart'] = cart
     return redirect(url_for('cart'))
 
@@ -130,7 +140,7 @@ def confirm():
                 'subtotal': subtotal
             })
             total += subtotal
-    log_action("注文確認画面へ遷移", page="確認")
+    log_action("購入確認画面へ遷移", page="確認")
     return render_template('confirm.html', cart_items=cart_items, total=total)
 
 # ==== 購入完了ページ ====
@@ -156,19 +166,18 @@ def thanks():
             subtotals.append(str(subtotal))
             total += subtotal
 
-    # 各列の値を連結して記録（必要に応じて JSON 形式にもできます）
+    # Google Sheets に購入情報を記録
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    action = "購入完了"
-    page = "完了ページ"
-
+    participant_id = session.get('participant_id', 'unknown')
     SHEET.append_row([
         timestamp,
-        action,
+        participant_id,
+        "購入完了",
         total,
         " / ".join(product_names),
         " / ".join(quantities),
         " / ".join(subtotals),
-        page
+        "完了ページ"
     ])
 
     session['cart'] = {}
@@ -180,11 +189,18 @@ def back_to_index():
     log_action("商品一覧へ戻る", page="ボタン操作")
     return redirect(url_for('index'))
 
+# ==== カートに戻るボタンログ ====
 @app.route('/back_to_cart', methods=['POST'])
 def back_to_cart():
     log_action("カートに戻る", page="確認画面")
     return redirect(url_for('cart'))
 
+# ==== コンテキストプロセッサ（バッジ表示用） ====
+@app.context_processor
+def inject_cart_count():
+    cart = session.get('cart', {})
+    count = sum(cart.values())
+    return dict(cart_count=count)
 
 # ==== ポート指定して起動（Render向け） ====
 if __name__ == '__main__':
