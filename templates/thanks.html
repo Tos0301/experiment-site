@@ -1,26 +1,14 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>購入完了</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% extends "base.html" %}
+{% block title %}購入完了{% endblock %}
 
-    <style>
-        .thank-icon {
-            font-size: 5rem;
-            color: green;
-        }
-    </style>
-</head>
-<body class="bg-light">
-    <div class="container text-center mt-5">
-        <div class="thank-icon mb-4">✔</div>
-        <h1 class="mb-3">ご購入ありがとうございました！</h1>
-        <p class="fs-5">注文が正常に完了しました。</p>
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="thank-icon mb-4" style="font-size: 5rem; color: green;">✔</div>
+    <h1 class="mb-3">ご購入ありがとうございました！</h1>
+    <p class="fs-5">注文が正常に完了しました。</p>
 
-        <div class="mt-4">
-            <a href="/" class="btn btn-outline-primary">← 商品一覧に戻る</a>
-        </div>
+    <div class="mt-4">
+        <a href="/" class="btn btn-outline-primary">← 商品一覧に戻る</a>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

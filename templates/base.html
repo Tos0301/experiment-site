@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}ECサイト{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  {% block head %}{% endblock %}
+  <style>
+    #cart-sidebar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 200px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      padding: 10px;
+      z-index: 9999;
+    }
+    #cart-sidebar .cart-header {
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    #cart-sidebar .btn {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  {% block content %}{% endblock %}
+
+  <!-- カートポップアップ -->
+  <div id="cart-sidebar">
+    <div class="cart-header">カート</div>
+    <div class="cart-body">
+      <p>商品が追加されました</p>
+      <a href="{{ url_for('cart') }}" class="btn btn-sm btn-primary w-100 mb-2">カートを見る</a>
+      <a href="{{ url_for('confirm') }}" class="btn btn-sm btn-success w-100">購入手続きへ</a>
+    </div>
+  </div>
+
+  {% block scripts %}
+  <script>
+    function showCartSidebar(message = "商品が追加されました") {
+      const sidebar = document.getElementById("cart-sidebar");
+      sidebar.querySelector('.cart-body p').innerText = message;
+      sidebar.style.display = "block";
+      setTimeout(() => {
+        sidebar.style.display = "none";
+      }, 3000);
+    }
+  </script>
+  {% endblock %}
+</body>
+</html>

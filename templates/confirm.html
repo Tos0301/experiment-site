@@ -1,50 +1,42 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>注文内容の確認</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">注文内容の確認</h1>
+{% extends "base.html" %}
+{% block title %}注文内容の確認{% endblock %}
 
-        {% if cart_items %}
-        <table class="table table-bordered bg-white text-center align-middle">
-            <thead class="table-secondary">
-                <tr>
-                    <th>商品名</th>
-                    <th>数量</th>
-                    <th>小計</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart_items %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>¥{{ item.subtotal }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">注文内容の確認</h1>
 
-        <p class="fs-5 fw-bold text-end me-2">合計金額：¥{{ total }}</p>
+    {% if cart_items %}
+    <table class="table table-bordered bg-white text-center align-middle">
+        <thead class="table-secondary">
+            <tr>
+                <th>商品名</th>
+                <th>数量</th>
+                <th>小計</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>¥{{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        <p class="text-danger text-center mt-4">※上記の内容で注文を確定してもよろしいですか？</p>
+    <p class="fs-5 fw-bold text-end me-2">合計金額：¥{{ total }}</p>
 
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <form method="POST" action="{{ url_for('thanks') }}">
-                <button type="submit" class="btn btn-success">注文を確定する</button>
-            </form>
-            <form action="{{ url_for('back_to_cart') }}" method="post" style="display:inline;">
-                <button type="submit" class="btn btn-outline-secondary">← カートに戻る</button>
-            </form>
-        </div>
+    <p class="text-danger text-center mt-4">※上記の内容で注文を確定してもよろしいですか？</p>
 
-        {% else %}
-        <div class="alert alert-warning text-center">カートが空です。</div>
-        {% endif %}
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <form action="/checkout" method="post">
+            <button type="submit" class="btn btn-success">注文を確定する</button>
+        </form>
+        <a href="/cart" class="btn btn-outline-secondary">← カートに戻る</a>
     </div>
-</body>
-</html>
+    {% else %}
+    <div class="alert alert-warning text-center">カートが空です。</div>
+    {% endif %}
+</div>
+{% endblock %}
