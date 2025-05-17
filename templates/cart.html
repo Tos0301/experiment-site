@@ -1,50 +1,73 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>カート</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <title>カート</title>
+    <style>
+        /* ポップアップカード用CSS */
+        .popup-card {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 16px;
+            width: 240px;
+            z-index: 1000;
+        }
+        .popup-card h5 {
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+        .popup-card button {
+            width: 100%;
+            margin-top: 6px;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-  <div class="container mt-5">
-    <h1 class="text-center">カートの中身</h1>
-    <table class="table table-bordered mt-4">
-      <thead>
-        <tr>
-          <th>商品</th><th>数量</th><th>小計</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in cart_items %}
-        <tr>
-          <td>
-            <img src="{{ url_for('static', filename='images/' ~ item.image) }}" width="100">
-            <div>{{ item.name }}</div>
-          </td>
-          <td>
+<h1>カートの中身</h1>
+<table>
+    <tr>
+        <th>商品</th><th>数量</th><th>小計</th>
+    </tr>
+    {% for item in cart_items %}
+    <tr>
+        <td><img src="{{ url_for('static', filename='images/' ~ item.image) }}" width="100"><br>{{ item.name }}</td>
+        <td>
             <form method="POST" action="{{ url_for('update_quantity') }}">
-              <input type="hidden" name="product_id" value="{{ item.id }}">
-              <input type="number" name="quantity" value="{{ item.quantity }}" min="0" onchange="this.form.submit()" class="form-control" style="width: 80px;">
+                <input type="hidden" name="product_id" value="{{ item.id }}">
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="0">
             </form>
-          </td>
-          <td>¥{{ item.subtotal }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </td>
+        <td>¥{{ item.subtotal }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-    <p class="text-end fs-5 fw-bold">合計金額（税込）：¥{{ total }}</p>
+<p><strong>合計金額（税込）：¥{{ total }}</strong></p>
 
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <form method="GET" action="{{ url_for('back_to_index') }}">
-        <button type="submit" class="btn btn-outline-secondary">← 商品一覧へ戻る</button>
-      </form>
-      <form method="GET" action="{{ url_for('confirm') }}">
-        <button type="submit" class="btn btn-primary">購入確認へ進む</button>
-      </form>
-    </div>
-  </div>
+<form method="GET" action="{{ url_for('back_to_index') }}">
+    <button type="submit">← 商品一覧へ戻る</button>
+</form>
+
+<form method="GET" action="{{ url_for('confirm') }}">
+    <button type="submit">購入確認へ進む</button>
+</form>
+
+<!-- ✅ ポップアップパネル -->
+<div class="popup-card">
+    <h5>現在のカート</h5>
+    <p>合計：¥{{ total }}</p>
+    <form method="GET" action="{{ url_for('index') }}">
+        <button type="submit">商品を追加する</button>
+    </form>
+    <form method="GET" action="{{ url_for('confirm') }}">
+        <button type="submit">購入手続きへ</button>
+    </form>
+</div>
 
 </body>
 </html>
