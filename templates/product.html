@@ -1,54 +1,71 @@
-{% extends "base.html" %}
-{% block title %}{{ product.name }}{% endblock %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ product.name }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    #popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 250px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      padding: 15px;
+      display: none;
+      z-index: 10000;
+    }
+    #popup.show {
+      display: block;
+    }
+    #popup button {
+      margin-top: 10px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body class="bg-light text-center">
 
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="text-center">
-                <img src="{{ url_for('static', filename='images/' + product.image) }}"
-                     alt="{{ product.name }}" class="img-fluid mb-4" style="max-height: 300px;">
-            </div>
-            <h2 class="text-center">{{ product.name }}</h2>
-            <p class="fs-4 text-muted text-center">¥{{ product.price }}</p>
+  <div class="container mt-5">
+    <img src="{{ url_for('static', filename='images/' ~ product.image) }}" width="300">
+    <h2 class="mt-3">{{ product.name }}</h2>
+    <p>¥{{ product.price }}</p>
 
-            <form onsubmit="addToCart(event, '{{ product.id }}')" class="d-flex mb-4 gap-2 justify-content-start align-items-center">
-                <button type="submit" class="btn btn-success btn-lg">カートに追加</button>
-                <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control w-auto text-center">
-            </form>
+    <form onsubmit="addToCart(event, '{{ product.id }}')">
+      <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control text-center mb-2" style="width: 80px; margin: 0 auto;">
+      <button type="submit" class="btn btn-success">カートに追加</button>
+    </form>
 
-            <div class="text-center">
-                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">← 商品一覧に戻る</a>
-            </div>
-        </div>
+    <div class="mt-3">
+      <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">← 商品一覧へ戻る</a>
     </div>
-</div>
-{% endblock %}
+  </div>
 
-{% block scripts %}
-<script>
+  <div id="popup">
+    <p>商品が追加されました</p>
+    <a href="{{ url_for('cart') }}" class="btn btn-primary">カートを見る</a>
+    <a href="{{ url_for('confirm') }}" class="btn btn-success">購入手続きへ</a>
+  </div>
+
+  <script>
     function addToCart(event, productId) {
-        event.preventDefault();
-        const quantity = document.getElementById("quantity").value;
-        fetch("/add_to_cart", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `product_id=${productId}&quantity=${quantity}`
-        }).then(response => {
-            if (response.ok) {
-                updateCartBadge(quantity);
-                showCartSidebar("商品が追加されました");
-            } else {
-                alert("カートへの追加に失敗しました。");
-            }
-        });
-    }
+      event.preventDefault();
+      const quantity = document.getElementById('quantity').value;
 
-    function updateCartBadge(quantity) {
-        const badge = document.getElementById("cart-badge");
-        let current = parseInt(badge.innerText || "0");
-        badge.innerText = current + parseInt(quantity);
-        badge.style.display = "inline-block";
+      fetch('/add_to_cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `product_id=${productId}&quantity=${quantity}`
+      }).then(response => {
+        if (response.ok) {
+          document.getElementById('popup').classList.add('show');
+        }
+      });
     }
-</script>
-{% endblock %}
+  </script>
+
+</body>
+</html>
