@@ -16,19 +16,6 @@
                 </div>
                 <h2 class="text-center">{{ product.name }}</h2>
                 <p class="fs-4 text-muted text-center">¥{{ product.price }}</p>
-
-                <!-- フォーム：ボタン左・数量バー右・中央寄せ -->
-                <form onsubmit="addToCart(event, '{{ product.id }}')" 
-                      class="d-flex mb-4 gap-3 justify-content-center align-items-center">
-                    <button type="submit" class="btn btn-success btn-lg">カートに追加</button>
-                    <input type="number" id="quantity" name="quantity" value="1" min="1"
-                           class="form-control w-50 text-center">
-                </form>
-
-                <div class="text-center">
-                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">← 商品一覧に戻る</a>
-
-                </div>
             </div>
         </div>
     </div>
@@ -36,12 +23,43 @@
     <!-- 共通のカートアイコン -->
     {% include 'cart_icon.html' %}
 
-    <!-- カート追加用スクリプト -->
-    <script>
-        function addToCart(event, productId) {
-            event.preventDefault();
+    <!-- 右側ポップアップUI -->
+    <div id="side-popup">
+        <p class="fw-bold text-center mb-2">価格：¥{{ product.price }}</p>
 
-            const quantity = document.getElementById("quantity").value;
+        <div class="mb-3">
+            <input type="number" id="popup-quantity" name="quantity" value="1" min="1" 
+                   class="form-control text-center" />
+        </div>
+
+        <button class="btn btn-success w-100 mb-2" onclick="addToCartFromPopup('{{ product.id }}')">
+            カートに追加
+        </button>
+
+        <button class="btn btn-outline-secondary w-100" onclick="location.href='{{ url_for('index') }}'">
+            商品一覧に戻る
+        </button>
+    </div>
+
+    <style>
+    #side-popup {
+        position: fixed;
+        right: 20px;
+        top: 30%;
+        width: 200px;
+        padding: 15px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        z-index: 999;
+    }
+    </style>
+
+    <!-- カート追加処理 -->
+    <script>
+        function addToCartFromPopup(productId) {
+            const quantity = document.getElementById("popup-quantity").value;
 
             fetch("/add_to_cart", {
                 method: "POST",
@@ -52,6 +70,7 @@
             }).then(response => {
                 if (response.ok) {
                     updateCartBadge(quantity);
+                    alert("カートに追加されました！");
                 } else {
                     alert("カートへの追加に失敗しました。");
                 }
@@ -60,4 +79,3 @@
     </script>
 </body>
 </html>
-
