@@ -36,9 +36,15 @@
             カートに追加
         </button>
 
-        <button class="btn btn-outline-primary w-100 mb-2" onclick="location.href='{{ url_for('cart') }}'">
-            カートを見る
-        </button>
+        <div class="position-relative">
+            <button class="btn btn-outline-primary w-100 mb-2" onclick="location.href='{{ url_for('cart') }}'">
+                カートを見る
+            </button>
+            <span id="recent-badge" class="badge bg-danger position-absolute top-0 start-100 translate-middle"
+                  style="display: none;">
+                0
+            </span>
+        </div>
 
         <button class="btn btn-outline-secondary w-100" onclick="location.href='{{ url_for('index') }}'">
             商品一覧に戻る
@@ -58,12 +64,17 @@
         box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
         z-index: 999;
     }
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.4em 0.6em;
+    }
     </style>
 
     <!-- カート追加処理 -->
     <script>
         function addToCartFromPopup(productId) {
             const quantity = document.getElementById("popup-quantity").value;
+            const badge = document.getElementById("recent-badge");
 
             fetch("/add_to_cart", {
                 method: "POST",
@@ -73,8 +84,10 @@
                 body: `product_id=${productId}&quantity=${quantity}`
             }).then(response => {
                 if (response.ok) {
-                    updateCartBadge(quantity);
-                    alert("カートに追加されました！");
+                    // バッジを更新して表示
+                    badge.innerText = quantity;
+                    badge.style.display = "inline-block";
+                    updateCartBadge(quantity);  // 既存のカートアイコンも更新
                 } else {
                     alert("カートへの追加に失敗しました。");
                 }
