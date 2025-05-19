@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <!-- 共通のカートアイコン -->
+    <!-- カートアイコン -->
     {% include 'cart_icon.html' %}
 
     <!-- 右側ポップアップUI -->
@@ -34,6 +34,10 @@
 
         <button class="btn btn-success w-100 mb-2" onclick="addToCartFromPopup('{{ product.id }}')">
             カートに追加
+        </button>
+
+        <button class="btn btn-outline-primary w-100 mb-2" onclick="location.href='{{ url_for('cart') }}'">
+            カートを見る
         </button>
 
         <button class="btn btn-outline-secondary w-100" onclick="location.href='{{ url_for('index') }}'">
