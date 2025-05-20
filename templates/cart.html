@@ -18,6 +18,25 @@
             background-color: red;
             color: white;
         }
+
+        /* ポップアップ固定UI */
+        #cart-popup {
+            position: fixed;
+            right: 20px;
+            bottom: 30px;
+            width: 250px;
+            padding: 15px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            z-index: 999;
+        }
+
+        #cart-popup .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -51,17 +70,19 @@
         {% endfor %}
         </tbody>
     </table>
+</div>
 
-    <!-- 左寄せボタン -->
-    <div class="d-flex justify-content-start gap-3 align-items-center">
-        <form method="POST" action="{{ url_for('back_to_index') }}">
-            <button type="submit" class="btn btn-outline-secondary">← 商品一覧へ戻る</button>
-        </form>
+<!-- 合計表示＆操作ポップアップ -->
+<div id="cart-popup">
+    <p class="fw-bold text-center mb-3">合計：¥{{ total }}</p>
 
-        <form method="GET" action="{{ url_for('confirm') }}">
-            <button type="submit" class="btn btn-primary">購入確認へ進む</button>
-        </form>
-    </div>
+    <form method="GET" action="{{ url_for('confirm') }}">
+        <button type="submit" class="btn btn-primary">購入確認へ進む</button>
+    </form>
+
+    <form method="POST" action="{{ url_for('back_to_index') }}">
+        <button type="submit" class="btn btn-outline-secondary">← 商品一覧へ戻る</button>
+    </form>
 </div>
 
 <!-- カートアイコン -->
