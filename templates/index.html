@@ -14,6 +14,10 @@
             background-color: #fff;
             box-shadow: 0 0 8px rgba(0, 0, 0, 0.03);
             transition: 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .product-card:hover {
@@ -56,19 +60,19 @@
         {% for product in products %}
             <div class="col-md-4 mb-4">
                 <div class="product-card">
-                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="text-decoration-none text-dark">
-                        <img src="{{ url_for('static', filename='images/' + product.image) }}"
-                             alt="{{ product.name }}" class="img-fluid mb-3" style="max-height: 200px;">
-                        <h5>{{ product.name }}</h5>
-                        <p>¥{{ product.price }}</p>
-                    </a>
+                    <img src="{{ url_for('static', filename='images/' + product.image) }}"
+                         alt="{{ product.name }}" class="img-fluid mb-3" style="max-height: 200px;">
+                    <h5>{{ product.name }}</h5>
+                    <p>¥{{ product.price }}</p>
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}"
+                       class="btn btn-outline-primary mt-2">詳細を見る</a>
                 </div>
             </div>
         {% endfor %}
     </div>
 </div>
 
-<!-- 🔽 下部固定のカートバー -->
+<!-- ✅ 下部カートナビバー -->
 <div id="bottom-nav">
     <a href="{{ url_for('cart') }}" class="text-center d-block text-decoration-none position-relative">
         <i class="fas fa-shopping-cart fa-lg"></i>
@@ -82,4 +86,5 @@
 
 </body>
 </html>
+
 
