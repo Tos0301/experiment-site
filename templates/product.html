@@ -4,95 +4,80 @@
     <meta charset="UTF-8">
     <title>{{ product.name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* ✅ 左カラム：固定表示 */
+        .left-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            background-color: #fff;
+            border-right: 1px solid #ccc;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            z-index: 1000;
+        }
+
+        /* ✅ 右カラム：左の分だけマージンを確保 */
+        .right-panel {
+            margin-left: 280px; /* 260px + 余白 */
+            padding: 40px;
+        }
+
+        .product-img {
+            max-width: 400px;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .quantity-input {
+            text-align: center;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .left-panel {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #ccc;
+            }
+            .right-panel {
+                margin-left: 0;
+            }
+        }
+    </style>
 </head>
 <body class="bg-light">
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="text-center">
-                    <img src="{{ url_for('static', filename='images/' + product.image) }}"
-                         alt="{{ product.name }}" class="img-fluid mb-4" style="max-height: 300px;">
-                </div>
-                <h2 class="text-center">{{ product.name }}</h2>
-                <p class="fs-4 text-muted text-center">¥{{ product.price }}</p>
-            </div>
-        </div>
-    </div>
+<!-- ✅ 左パネル（価格・操作） -->
+<div class="left-panel">
+    <p class="fw-bold">価格：¥{{ product.price }}</p>
+    <form method="POST" action="{{ url_for('add_to_cart') }}">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <input type="number" name="quantity" value="1" min="1" class="form-control mb-3 quantity-input">
+        <button type="submit" class="btn btn-success mb-2">カートに追加</button>
+    </form>
+    <a href="{{ url_for('cart') }}" class="btn btn-outline-primary mb-2">カートを見る</a>
+    <form method="POST" action="{{ url_for('back_to_index') }}">
+        <button type="submit" class="btn btn-outline-secondary">商品一覧に戻る</button>
+    </form>
+</div>
 
-    <!-- カートアイコン -->
-    {% include 'cart_icon.html' %}
+<!-- ✅ 右カラム（スクロール） -->
+<div class="right-panel text-center">
+    <img src="{{ url_for('static', filename='images/' + product.image) }}"
+         alt="{{ product.name }}" class="img-fluid product-img mb-4">
+    <h3>{{ product.name }}</h3>
+    <p class="fs-5">¥{{ product.price }}</p>
+</div>
 
-    <!-- 右側ポップアップUI -->
-    <div id="side-popup">
-        <p class="fw-bold text-center mb-2">価格：¥{{ product.price }}</p>
-
-        <div class="mb-3">
-            <input type="number" id="popup-quantity" name="quantity" value="1" min="1" 
-                   class="form-control text-center" />
-        </div>
-
-        <button class="btn btn-success w-100 mb-2" onclick="addToCartFromPopup('{{ product.id }}')">
-            カートに追加
-        </button>
-
-        <div class="position-relative">
-            <button class="btn btn-outline-primary w-100 mb-2" onclick="location.href='{{ url_for('cart') }}'">
-                カートを見る
-            </button>
-            <span id="recent-badge" class="badge bg-danger position-absolute top-0 start-100 translate-middle"
-                  style="display: none;">
-                0
-            </span>
-        </div>
-
-        <button class="btn btn-outline-secondary w-100" onclick="location.href='{{ url_for('index') }}'">
-            商品一覧に戻る
-        </button>
-    </div>
-
-    <style>
-    #side-popup {
-        position: fixed;
-        left: 20px;
-        top: 30%;
-        width: 200px;
-        padding: 15px;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-        z-index: 999;
-    }
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.4em 0.6em;
-    }
-    </style>
-
-    <!-- カート追加処理 -->
-    <script>
-        function addToCartFromPopup(productId) {
-            const quantity = document.getElementById("popup-quantity").value;
-            const badge = document.getElementById("recent-badge");
-
-            fetch("/add_to_cart", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `product_id=${productId}&quantity=${quantity}`
-            }).then(response => {
-                if (response.ok) {
-                    // バッジを更新して表示
-                    badge.innerText = quantity;
-                    badge.style.display = "inline-block";
-                    updateCartBadge(quantity);  // 既存のカートアイコンも更新
-                } else {
-                    alert("カートへの追加に失敗しました。");
-                }
-            });
-        }
-    </script>
 </body>
 </html>
