@@ -3,96 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <title>カートの中身</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .cart-icon {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            font-size: 24px;
-        }
-        .badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: red;
-            color: white;
-        }
-
-        /* ポップアップ固定UI */
-        #cart-popup {
-            position: fixed;
-            left: 20px;
-            bottom: 30px;
-            width: 250px;
-            padding: 15px;
-            background-color: #ffffff;
+        .popup-box {
+            background-color: #fff;
             border: 1px solid #ddd;
-            box-shadow: 0 0 12px rgba(0,0,0,0.1);
             border-radius: 10px;
-            z-index: 999;
+            padding: 15px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 100px;
         }
-
-        #cart-popup .btn {
-            width: 100%;
-            margin-bottom: 10px;
+        .product-img {
+            max-width: 100px;
         }
     </style>
 </head>
-<body>
+<body class="bg-light">
+
 <div class="container mt-5">
-    <h2 class="mb-4"><i class="fas fa-shopping-cart"></i> カートの中身</h2>
+    <div class="row">
+        <!-- ✅ 左カラム：ポップアップ -->
+        <div class="col-md-3">
+            <div class="popup-box">
+                <p class="fw-bold text-center">合計：¥{{ total }}</p>
 
-    <table class="table table-bordered">
-        <thead class="thead-light">
-        <tr>
-            <th>商品</th>
-            <th>数量</th>
-            <th>小計</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for item in cart_items %}
-            <tr>
-                <td>
-                    <img src="{{ url_for('static', filename='images/' ~ item.image) }}" width="100">
-                    <div>{{ item.name }}</div>
-                </td>
-                <td>
-                    <form method="POST" action="{{ url_for('update_quantity') }}">
-                        <input type="hidden" name="product_id" value="{{ item.id }}">
-                        <input type="number" name="quantity" value="{{ item.quantity }}" min="0"
-                               onchange="this.form.submit()" class="form-control" style="width: 80px;">
-                    </form>
-                </td>
-                <td>¥{{ item.subtotal }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                <form method="GET" action="{{ url_for('confirm') }}">
+                    <button type="submit" class="btn btn-primary w-100 mb-2">購入確認へ進む</button>
+                </form>
+
+                <form method="POST" action="{{ url_for('back_to_index') }}">
+                    <button type="submit" class="btn btn-outline-secondary w-100">← 商品一覧へ戻る</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ✅ 右カラム：商品テーブル -->
+        <div class="col-md-9">
+            <h2 class="mb-4">カートの中身</h2>
+            <table class="table table-bordered align-middle">
+                <thead class="table-light text-center">
+                <tr>
+                    <th>商品</th>
+                    <th>数量</th>
+                    <th>小計</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td class="text-center">
+                            <img src="{{ url_for('static', filename='images/' + item.image) }}"
+                                 alt="{{ item.name }}" class="img-fluid product-img">
+                            <div class="mt-2">{{ item.name }}</div>
+                        </td>
+                        <td class="text-center">
+                            <form method="POST" action="{{ url_for('update_quantity') }}">
+                                <input type="hidden" name="product_id" value="{{ item.id }}">
+                                <input type="number" name="quantity" value="{{ item.quantity }}"
+                                       min="0" onchange="this.form.submit()" class="form-control"
+                                       style="width: 80px; margin: auto;">
+                            </form>
+                        </td>
+                        <td class="text-center">¥{{ item.subtotal }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- 合計表示＆操作ポップアップ -->
-<div id="cart-popup">
-    <p class="fw-bold text-center mb-3">合計：¥{{ total }}</p>
-
-    <form method="GET" action="{{ url_for('confirm') }}">
-        <button type="submit" class="btn btn-primary">購入確認へ進む</button>
-    </form>
-
-    <form method="POST" action="{{ url_for('back_to_index') }}">
-        <button type="submit" class="btn btn-outline-secondary">← 商品一覧へ戻る</button>
-    </form>
-</div>
-
-<!-- カートアイコン -->
-<a href="{{ url_for('cart') }}" class="cart-icon">
-    <i class="fas fa-shopping-cart"></i>
-    {% if cart_count > 0 %}
-        <span class="badge rounded-circle px-2">{{ cart_count }}</span>
-    {% endif %}
-</a>
-
-<script src="https://kit.fontawesome.com/a076d05399.js"></script>
 </body>
 </html>
