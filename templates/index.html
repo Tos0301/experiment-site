@@ -56,7 +56,7 @@
         {% for product in products %}
             <div class="col-md-4 mb-4">
                 <div class="product-card">
-                    <a href="{{ url_for('product', product_id=product.id) }}" class="text-decoration-none text-dark">
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="text-decoration-none text-dark">
                         <img src="{{ url_for('static', filename='images/' + product.image) }}"
                              alt="{{ product.name }}" class="img-fluid mb-3" style="max-height: 200px;">
                         <h5>{{ product.name }}</h5>
