@@ -3,66 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <title>注文内容の確認</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        #confirm-popup {
+        /* ✅ 左カラム固定スタイル */
+        .fixed-sidebar {
             position: fixed;
-            left: 20px;
-            bottom: 30px;
-            width: 250px;
-            padding: 15px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            box-shadow: 0 0 12px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            z-index: 999;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            background-color: #fff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1000;
         }
 
-        #confirm-popup .btn {
+        /* ✅ 右コンテンツ */
+        .main-content {
+            margin-left: 280px;
+            padding: 40px;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .action-buttons button {
             width: 100%;
-            margin-bottom: 10px;
         }
     </style>
 </head>
 <body class="bg-light">
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">注文内容の確認</h2>
+<!-- ✅ 左カラム：点数・合計・操作 -->
+<div class="fixed-sidebar">
+    <div>
+        <h5>点数：{{ cart_count }}点</h5>
+        <h5>合計金額：¥{{ total }}</h5>
+    </div>
+    <div class="action-buttons">
+        <form method="POST" action="{{ url_for('complete') }}">
+            <button type="submit" class="btn btn-success mb-2">注文を確定する</button>
+        </form>
+        <form method="POST" action="{{ url_for('back_to_cart') }}">
+            <button type="submit" class="btn btn-outline-secondary">← カートに戻る</button>
+        </form>
+    </div>
+</div>
+
+<!-- ✅ 右カラム：確認内容 -->
+<div class="main-content">
+    <h2 class="mb-4">注文内容の確認</h2>
 
     <table class="table table-bordered text-center">
-        <thead class="thead-light">
-        <tr>
-            <th>商品名</th>
-            <th>数量</th>
-            <th>小計</th>
-        </tr>
+        <thead class="table-light">
+            <tr>
+                <th>商品名</th>
+                <th>数量</th>
+                <th>小計</th>
+            </tr>
         </thead>
         <tbody>
-        {% for item in cart_items %}
-            <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>¥{{ item.subtotal }}</td>
-            </tr>
-        {% endfor %}
+            {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>¥{{ item.subtotal }}</td>
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
 
-    <p class="text-right fs-5"><strong>合計金額：¥{{ total }}</strong></p>
-
-    <p class="text-center text-danger mt-4">※上記の内容で注文を確定してもよろしいですか？</p>
-</div>
-
-<!-- ✅ ポップアップボックス -->
-<div id="confirm-popup">
-    <p class="fw-bold text-center mb-3">合計：¥{{ total }}</p>
-
-    <form method="POST" action="{{ url_for('thanks') }}">
-        <button type="submit" class="btn btn-success">注文を確定する</button>
-    </form>
-
-    <a href="{{ url_for('cart') }}" class="btn btn-outline-secondary">← カートに戻る</a>
+    <p class="mt-4 text-danger fw-bold">※ 上記の内容で注文を確定してもよろしいですか？</p>
 </div>
 
 </body>
 </html>
+
