@@ -24,30 +24,23 @@
             box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
         }
 
-        #bottom-nav {
+        .cart-icon {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #fff;
-            border-top: 1px solid #ddd;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-            text-align: center;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
             z-index: 999;
         }
 
-        #bottom-nav i {
-            color: #333;
-        }
-
-        #bottom-nav .badge {
+        .cart-icon .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 0.4em 0.6em;
             font-size: 0.75rem;
-            padding: 0.3em 0.5em;
-        }
-
-        body {
-            padding-bottom: 70px; /* フッター分の余白 */
         }
     </style>
 </head>
@@ -61,7 +54,9 @@
             <div class="col-md-4 mb-4">
                 <div class="product-card">
                     <img src="{{ url_for('static', filename='images/' + product.image) }}"
-                         alt="{{ product.name }}" class="img-fluid mb-3" style="max-height: 200px;">
+                         alt="{{ product.name }}"
+                         class="img-fluid mb-3"
+                         style="height: 200px; width: auto; object-fit: contain;">
                     <h5>{{ product.name }}</h5>
                     <p>¥{{ product.price }}</p>
                     <a href="{{ url_for('product_detail', product_id=product.id) }}"
@@ -72,19 +67,13 @@
     </div>
 </div>
 
-<!-- ✅ 下部カートナビバー -->
-<div id="bottom-nav">
-    <a href="{{ url_for('cart') }}" class="text-center d-block text-decoration-none position-relative">
-        <i class="fas fa-shopping-cart fa-lg"></i>
-        {% if cart_count > 0 %}
-            <span class="badge bg-danger rounded-circle position-absolute top-0 start-100 translate-middle">
-                {{ cart_count }}
-            </span>
-        {% endif %}
-    </a>
-</div>
+<!-- ✅ 右下固定カートアイコン -->
+<a href="{{ url_for('cart') }}" class="cart-icon position-relative text-dark text-decoration-none">
+    <i class="fas fa-shopping-cart fa-2x"></i>
+    {% if cart_count and cart_count > 0 %}
+        <span class="badge">{{ cart_count }}</span>
+    {% endif %}
+</a>
 
 </body>
 </html>
-
-
