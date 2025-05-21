@@ -44,7 +44,7 @@ def input_id():
     return render_template('input_id.html')
 
 @app.route('/set_id', methods=['POST'])
-def set_id():
+def set_psrticipsnt_id():
     participant_id = request.form.get("participant_id")
     if participant_id:
         session["participant_id"] = participant_id
