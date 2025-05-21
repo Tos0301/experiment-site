@@ -4,6 +4,7 @@ import csv
 import os
 import base64
 import gspread
+import pandas as pd  # 追加
 from google.oauth2.service_account import Credentials
 
 app = Flask(__name__)
@@ -23,6 +24,9 @@ if b64_content:
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 client = gspread.authorize(creds)
 SHEET = client.open_by_key('1KNZ49or81ECH9EVXYeKjAv-ooSnXMbP3dC10e2gQR3g').sheet1
+
+# ==== specs.csv 読み込み ====
+specs_df = pd.read_csv('data/specs.csv')
 
 # ==== ログ記録関数 ====
 def log_action(action, product_id='', quantity='', page=''):
@@ -69,8 +73,13 @@ def product_detail(product_id):
     product = next((p for p in products if p['id'] == product_id), None)
     if not product:
         return "商品が見つかりません", 404
+
+    # specs.csv からスペック取得
+    spec_row = specs_df[specs_df['id'] == product_id]
+    specs = spec_row['specs'].values[0] if not spec_row.empty else ""
+
     log_action("商品詳細表示", product_id=product_id, page="詳細")
-    return render_template('product.html', product=product)
+    return render_template('product.html', product=product, specs=specs)
 
 # ==== カートに追加 ====
 @app.route('/add_to_cart', methods=['POST'])
@@ -206,3 +215,4 @@ def inject_cart_count():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 1000))
     app.run(host='0.0.0.0', port=port)
+

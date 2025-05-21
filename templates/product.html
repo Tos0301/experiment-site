@@ -1,83 +1,78 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>{{ product.name }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* ✅ 左カラム：固定表示 */
-        .left-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 260px;
-            height: 100vh;
-            background-color: #fff;
-            border-right: 1px solid #ccc;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            z-index: 1000;
-        }
+  <meta charset="UTF-8">
+  <title>{{ product.name }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
 
-        /* ✅ 右カラム：左の分だけマージンを確保 */
-        .right-panel {
-            margin-left: 280px; /* 260px + 余白 */
-            padding: 40px;
-        }
+    .fixed-buttons {
+      position: fixed;
+      top: 80px;
+      left: 20px;
+      width: 200px;
+      z-index: 1000;
+    }
 
-        .product-img {
-            max-width: 400px;
-            height: auto;
-            border-radius: 10px;
-        }
+    .product-layout {
+      display: flex;
+      justify-content: center;
+      margin-left: 240px; /* 左カラムの幅分を確保 */
+      gap: 40px;
+      padding-top: 60px;
+    }
 
-        .quantity-input {
-            text-align: center;
-        }
+    .product-image {
+      max-width: 400px;
+      width: 100%;
+      object-fit: contain;
+    }
 
-        .btn {
-            width: 100%;
-        }
+    .product-details {
+      max-width: 500px;
+    }
 
-        @media (max-width: 768px) {
-            .left-panel {
-                position: relative;
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid #ccc;
-            }
-            .right-panel {
-                margin-left: 0;
-            }
-        }
-    </style>
+    .spec-list {
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
-<body class="bg-light">
-
-<!-- ✅ 左パネル（価格・操作） -->
-<div class="left-panel">
-    <p class="fw-bold">価格：¥{{ product.price }}</p>
-    <form method="POST" action="{{ url_for('add_to_cart') }}">
-        <input type="hidden" name="product_id" value="{{ product.id }}">
-        <input type="number" name="quantity" value="1" min="1" class="form-control mb-3 quantity-input">
-        <button type="submit" class="btn btn-success mb-2">カートに追加</button>
+<body>
+  <!-- ✅ 左カラム：固定ボタン群 -->
+  <div class="fixed-buttons">
+    <form method="POST" action="{{ url_for('add_to_cart') }}" class="mb-3">
+      <input type="hidden" name="product_id" value="{{ product.id }}">
+      <label>価格：¥{{ product.price }}</label>
+      <input type="number" name="quantity" value="1" min="1" class="form-control mb-2">
+      <button type="submit" class="btn btn-success w-100 mb-2">カートに追加</button>
     </form>
-    <a href="{{ url_for('cart') }}" class="btn btn-outline-primary mb-2">カートを見る</a>
+    <a href="{{ url_for('cart') }}" class="btn btn-outline-primary w-100 mb-2">カートを見る</a>
     <form method="POST" action="{{ url_for('back_to_index') }}">
-        <button type="submit" class="btn btn-outline-secondary">商品一覧に戻る</button>
+      <button type="submit" class="btn btn-outline-secondary w-100">商品一覧へ戻る</button>
     </form>
-</div>
+  </div>
 
-<!-- ✅ 右カラム（スクロール） -->
-<div class="right-panel text-center">
-    <img src="{{ url_for('static', filename='images/' + product.image) }}"
-         alt="{{ product.name }}" class="img-fluid product-img mb-4">
-    <h3>{{ product.name }}</h3>
-    <p class="fs-5">¥{{ product.price }}</p>
-</div>
+  <!-- ✅ 中央（画像）＋右（スペック） -->
+  <div class="container">
+    <div class="product-layout">
+      <!-- 中央：商品画像 -->
+      <div>
+        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="product-image">
+      </div>
 
+      <!-- 右：商品情報とスペック -->
+      <div class="product-details">
+        <h2>{{ product.name }}</h2>
+        <h4 class="text-muted mb-3">¥{{ product.price }}</h4>
+
+        <hr>
+        <h5 class="mt-4">商品スペック</h5>
+        <p class="spec-list">{{ specs|safe }}</p>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
