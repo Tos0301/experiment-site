@@ -56,8 +56,13 @@
             </div>
             <button type="submit" class="btn btn-success w-100 mb-2">カートに追加</button>
         </form>
-        <a href="{{ url_for('cart') }}" class="btn btn-outline-primary w-100 mb-2">カートを見る</a>
-        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary w-100">商品一覧へ戻る</a>
+        <!-- ✅ POSTでログ記録されるように修正 -->
+        <form method="POST" action="{{ url_for('go_cart') }}">
+            <button type="submit" class="btn btn-outline-primary w-100 mb-2">カートを見る</button>
+        </form>
+        <form method="POST" action="{{ url_for('go_index') }}">
+            <button type="submit" class="btn btn-outline-secondary w-100">商品一覧へ戻る</button>
+        </form>
     </div>
 
     <!-- 中央・右カラム（商品情報） -->

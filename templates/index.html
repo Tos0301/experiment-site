@@ -59,8 +59,11 @@
                          style="height: 200px; width: auto; object-fit: contain;">
                     <h5>{{ product.name }}</h5>
                     <p>¥{{ product.price }}</p>
-                    <a href="{{ url_for('product_detail', product_id=product.id) }}"
-                       class="btn btn-outline-primary mt-2">詳細を見る</a>
+                    <!-- ✅ POST形式で詳細ページへ遷移＆ログを残す -->
+                    <form method="POST" action="{{ url_for('go_product') }}">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <button type="submit" class="btn btn-outline-primary mt-2">詳細を見る</button>
+                    </form>
                 </div>
             </div>
         {% endfor %}
