@@ -3,20 +3,25 @@ import csv, os
 import pandas as pd
 import datetime
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 import base64
 import json
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
-# Google Sheets連携設定
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-key_b64 = os.environ.get("GSHEET_SERVICE_KEY")
-key_dict = json.loads(base64.b64decode(key_b64).decode("utf-8"))
-credentials = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
+scopes = ['https://www.googleapis.com/auth/spreadsheets']
+service_account_path = 'encoded.txt'  # base64でエンコードされたサービスアカウントキー
+spreadsheet_id = '1KNZ49or81ECH9EVXYeKjAv-ooSnXMbP3dC10e2gQR3g'
+
+with open(service_account_path, 'r') as f:
+    encoded = f.read()
+decoded_json = base64.b64decode(encoded).decode('utf-8')
+service_info = json.loads(decoded_json)
+
+credentials = Credentials.from_service_account_info(service_info, scopes=scopes)
 gc = gspread.authorize(credentials)
-worksheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1KNZ49or81ECH9EVXYeKjAv-ooSnXMbP3dC10e2gQR3g/edit#gid=0").sheet1
+worksheet = gc.open_by_key(spreadsheet_id).sheet1
 
 def log_action(action, page="", total_price=0, products=None, quantities=None, subtotals=None):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
