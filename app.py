@@ -75,7 +75,7 @@ def product_detail(product_id):
         return "商品が見つかりません", 404
 
     # specs.csv からスペック取得
-    spec_row = specs_df[specs_df['id'] == product_id]
+    spec_row = specs_df[specs_df['id'].astype(str) == product_id]
     specs = spec_row['specs'].values[0] if not spec_row.empty else ""
 
     log_action("商品詳細表示", product_id=product_id, page="詳細")
