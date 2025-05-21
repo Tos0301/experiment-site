@@ -1,16 +1,21 @@
 id,name,price,image
-001,マグカップ A,800,mag_a.png
-002,マグカップ B,850,mag_b.png
-003,マグカップ C,900,mag_c.png
-004,歯ブラシ A,300,brush_a.png
-005,歯ブラシ B,320,brush_b.png
-006,歯ブラシ C,350,brush_c.png
-007,ノート A,500,note_a.png
-008,ノート B,550,note_b.png
-009,ノート C,600,note_c.png
-010,モバイルバッテリー A,1800,battery_a.png
-011,モバイルバッテリー B,2000,battery_b.png
-012,モバイルバッテリー C,2200,battery_c.png
-013,ペン A,150,pen_a.png
-014,ペン B,180,pen_b.png
-015,ペン C,200,pen_c.png
+001,TAMAKI ヒナタマグカップ 350ml,660,mag_a.jpg
+002,TAMAKI マグカップ マム ベージュ 310ml,957,mag_b.jpg
+003,cores マグカップ ホワイト 320ml,2202,mag_c.jpg
+004,たたら 美濃焼 マグカップ グレー 300ml,1216,mag_d.jpg
+005,奇跡の歯ブラシ クリアブラック 3本セット,1767,brush_a.jpg
+006,Ota2 プレミアム 歯ブラシ なめらかフィット [超コンパクト ふつう] 3本パック,990,brush_b.jpg
+007,クリニカ アドバンテージ 歯ブラシ 4列 コンパクト ふつう 6本 +フロス付き,1140,brush_c.jpg
+008,歯ブラシD,800,brush_b.png
+009,ナカバヤシ スイングロジカル 抗菌表紙ノート セミB5/A罫/30枚 スモーキーカラー 5冊パック,516,note_a.jpg
+010,コクヨ ノート ソフトリングノート Sooofa A5 変形 4mm方眼 青,773,note_b.jpg
+011,マルマン ノート ニーモシネ 7mm罫 A5,385,note_c.jpg
+012,ツバメノート ノート B5 横罫 50枚 W3005 3冊パック,1122,note_d.jpg
+013,Anker Nano Power Bank (22.5W Built-In USB-C Connector) (モバイルバッテリー 5000mAh 小型コンパクト)【PowerIQ搭載/USB-C一体型】 iPhone 16 / 15 シリーズ,3490,battery_a.jpg
+014,エレコム モバイルバッテリー 大容量 10000mAh USB PD対応 20W Type-C×1 USB-A×2 ケーブル別売り 【 iPhone 16 15 Pixel OPPO など各種対応】 ホワイト,2510,battery_b.jpg
+015,エレコム モバイルバッテリー 大容量 10000mAh USB PD対応 20W Type-C×1 USB-A×2 ケーブル付属 【 iPhone Pixel OPPO NINTENDO SWITCH など各種対応】 ピンク,3600,battery_c.jpg
+016,Anker Nano Power Bank (12W Built-In Lightning Connector) (モバイルバッテリー 5000mAh 小型コンパクト)【ライトニング端子一体型】,3990,battery_d.jpg
+017,三菱鉛筆 油性ボールペン ジェットストリーム 0.5 黒,113,pen_a.png
+018,ゼブラ サラサクリップ 0.5mm 黒,70,pen_b.jpg
+019,ゼブラ サラサクリップ 0.3mm 黒,79,pen_c.jpg
+020,ゼブラ サラサクリップ 0.5mm 赤,79,pen_d.jpg
