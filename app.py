@@ -49,7 +49,6 @@ def set_participant_id():
         return redirect(url_for('index'))
     return redirect(url_for('input_id'))
 
-
 # === 商品一覧ページ ===
 @app.route('/index')
 def index():
