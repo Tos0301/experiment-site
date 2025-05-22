@@ -39,6 +39,17 @@ def load_products():
     df = pd.read_csv("data/products.csv", dtype=str)
     return df.to_dict(orient="records")
 
+def load_specs():
+    specs = {}
+    with open("data/specs.csv", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # IDをゼロ埋めして確実に一致させる
+            product_id = row["id"].strip().zfill(3)
+            specs[product_id] = row["specs"]
+    return specs
+
+
 @app.route('/')
 def input_id():
     return render_template('input_id.html')
@@ -64,6 +75,7 @@ def index():
 def product_detail(product_id):
     products = load_products()
     product = next((p for p in products if p["id"] == product_id), None)
+    specs_data = load_specs()
     cart_count = sum(session.get("cart", {}).values())
     if request.method == 'POST':
         log_action(f"商品詳細表示: {product_id}", page="詳細")
@@ -71,7 +83,7 @@ def product_detail(product_id):
         'product.html',
         product=product,
         cart_count=cart_count,
-        specs=product.get("specs", "")  # ← ここが重要
+        specs=specs_data.get(product_id, "(商品説明がありません)")  # ← ここが重要
     )
 
 
