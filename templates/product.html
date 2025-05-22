@@ -84,15 +84,19 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         
         .then(data => {
-            if (data.cart_count !== undefined) {
-                cartCount.textContent = data.cart_count;
-                cartCount.style.display = "inline-block";
+            // ✅ 修正点：IDを cart-badge にする
+            const badge = document.getElementById("cart-badge");
+            if (badge && data.cart_count !== undefined) {
+                badge.textContent = data.cart_count;
+                badge.style.display = "inline-block";
             }
 
+            // さらに安全にバッジ更新（冗長だけどOK）
             if (typeof updateCartBadge === "function") {
                 updateCartBadge();
             }
         })
+        
         .catch(error => {
             console.error("Error updating cart:", error);
         });
