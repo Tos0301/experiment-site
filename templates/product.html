@@ -65,25 +65,36 @@
     </div>
 </div>
 
-<!-- JavaScript：Fetchで非同期追加＋バッジ更新 -->
 <script>
-document.getElementById("add-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    fetch("/add_to_cart", {
-        method: "POST",
-        body: formData
-    }).then(() => {
-        fetch("/cart_count")
-            .then(res => res.json())
-            .then(data => {
-                const badge = document.getElementById("cart-count");
-                badge.textContent = data.count;
-                badge.style.display = data.count > 0 ? "inline-block" : "none";
-            });
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("add-to-cart-form");
+    const cartCount = document.getElementById("cart-count");
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        fetch("/add_to_cart", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.cart_count !== undefined) {
+                cartCount.textContent = data.cart_count;
+                cartCount.style.display = "inline-block";
+            }
+        })
+        .catch(error => {
+            console.error("Error updating cart:", error);
+        });
     });
 });
 </script>
+
 
 </body>
 </html>

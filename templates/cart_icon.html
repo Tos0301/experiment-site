@@ -26,11 +26,25 @@
 </div>
 
 <script>
-function updateCartBadge(quantity) {
-    const badge = document.getElementById("cart-badge");
-    let current = parseInt(badge.innerText || "0");
-    badge.innerText = current + parseInt(quantity);
-    badge.style.display = "inline-block";
+// サーバーから現在の合計点数を取得してバッジを更新
+function fetchCartCountAndUpdateBadge() {
+    fetch("/cart_count")
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById("cart-badge");
+            if (data.count > 0) {
+                badge.innerText = data.count;
+                badge.style.display = "inline-block";
+            } else {
+                badge.style.display = "none";
+            }
+        })
+        .catch(error => console.error("カート数の取得に失敗しました:", error));
+}
+
+// カートに追加後に呼び出す関数
+function updateCartBadge() {
+    fetchCartCountAndUpdateBadge();
 }
 </script>
 
