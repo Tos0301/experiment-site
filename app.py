@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import csv, os
 import pandas as pd
 import datetime
@@ -108,6 +108,12 @@ def add_to_cart():
     else:
         log_action("カートに追加", page="詳細")
 
+    # ✅ 非同期(fetch)リクエストの場合はJSONで返す
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        cart_count = sum(cart.values())
+        return jsonify({"cart_count": cart_count})
+
+    # ✅ 通常遷移のときはリダイレクト（使っていないなら return "", 204 のままでもOK）
     return "", 204
 
 
