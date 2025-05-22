@@ -50,10 +50,6 @@
     </style>
 </head>
 <body class="bg-light">
-
-<!-- カートバッジ -->
-{% include 'cart_icon.html' %}
-
 <div class="container">
     <!-- 左カラム：価格・数量・操作 -->
     <div class="left-column">
@@ -68,14 +64,13 @@
                 <button type="submit" class="btn btn-success cart-button">カートに追加</button>
             </form>
 
-            <form method="POST" action="{{ url_for('go_cart') }}" class="mt-2">
+            <form method="POST" action="{{ url_for('go_cart') }}" class="mt-2 position-relative">
                 <button type="submit" class="btn btn-outline-primary cart-button">
                     カートを見る
-                    {% if cart_count > 0 %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    <span id ="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        style="display: {{ 'inline-block' if cart_count > 0 else 'none' }};">
                         {{ cart_count }}
                     </span>
-                    {% endif %}
                 </button>
             </form>
 
@@ -102,9 +97,30 @@
 </div>
 
 <script>
+function fetchCartCountAndUpdateBadge() {
+    fetch("/cart_count")
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById("cart-badge");
+            if (badge) {
+                if (data.count > 0) {
+                    badge.innerText = data.count;
+                    badge.style.display = "inline-block";
+                } else {
+                    badge.style.display = "none";
+                }
+            }
+        })
+        .catch(error => console.error("カート数の取得に失敗しました:", error));
+}
+
+// カートに追加後にバッジ更新
+function updateCartBadge() {
+    fetchCartCountAndUpdateBadge();
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("add-to-cart-form");
-    const cartCount = document.getElementById("cart-count");
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
