@@ -67,7 +67,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("add-to-cart-form");
+    const form = document.getElementById("add-form");
     const cartCount = document.getElementById("cart-count");
 
     form.addEventListener("submit", function (e) {
@@ -82,10 +82,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .then(response => response.json())
+        
         .then(data => {
             if (data.cart_count !== undefined) {
                 cartCount.textContent = data.cart_count;
                 cartCount.style.display = "inline-block";
+            }
+
+            if (typeof updateCartBadge === "function") {
+                updateCartBadge();
             }
         })
         .catch(error => {
