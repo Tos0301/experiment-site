@@ -68,9 +68,7 @@
                 <button type="submit" class="btn btn-outline-primary cart-button">
                     カートを見る
                     <span id ="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        style="display: {{ 'inline-block' if cart_count > 0 else 'none' }};">
-                        {{ cart_count }}
-                    </span>
+                        style="display: {{ 'inline-block' if cart_count > 0 else 'none' }};">{{ cart_count }}</span>
                 </button>
             </form>
 
