@@ -69,6 +69,12 @@ def product_detail(product_id):
         log_action(f"商品詳細表示: {product_id}", page="詳細")
     return render_template('product.html', product=product, cart_count=cart_count)
 
+@app.route('/go_product', methods=['POST'])
+def go_product():
+    product_id = request.form.get("product_id")
+    return redirect(url_for('product_detail', product_id=product_id))
+
+
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     product_id = request.form["product_id"]
@@ -153,6 +159,13 @@ def confirm():
                    quantities=[item["quantity"] for item in cart_items],
                    subtotals=[item["subtotal"] for item in cart_items])
     return render_template("confirm.html", cart_items=cart_items, total=total, cart_count=cart_count)
+
+@app.route('/complete', methods=['POST'])
+def complete():
+    log_action("購入確定", page="確認")
+    session["cart"] = {}
+    return render_template('thanks.html', cart_count=0)
+
 
 @app.route('/thanks', methods=['POST'])
 def thanks():
