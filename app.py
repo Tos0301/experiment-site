@@ -67,7 +67,13 @@ def product_detail(product_id):
     cart_count = sum(session.get("cart", {}).values())
     if request.method == 'POST':
         log_action(f"商品詳細表示: {product_id}", page="詳細")
-    return render_template('product.html', product=product, cart_count=cart_count)
+    return render_template(
+        'product.html',
+        product=product,
+        cart_count=cart_count,
+        specs=product.get("specs", "")  # ← ここが重要
+    )
+
 
 @app.route('/go_product', methods=['POST'])
 def go_product():
