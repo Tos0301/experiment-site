@@ -80,6 +80,11 @@ def go_product():
     product_id = request.form.get("product_id")
     return redirect(url_for('product_detail', product_id=product_id))
 
+@app.route('/go_cart', methods=['POST'])
+def go_cart():
+    log_action("カートを見る", page="詳細")
+    return redirect(url_for('cart'))
+
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
