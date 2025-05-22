@@ -90,11 +90,26 @@ def go_cart():
 def add_to_cart():
     product_id = request.form["product_id"]
     quantity = int(request.form["quantity"])
+
+    products = load_products()
+    product = next((p for p in products if p["id"] == product_id), None)
+
     cart = session.get("cart", {})
     cart[product_id] = cart.get(product_id, 0) + quantity
     session["cart"] = cart
-    log_action("カートに追加", page="詳細")
-    return "", 204  # ✅ 非同期対応：空の成功レスポンス
+
+    if product:
+        name = product["name"]
+        price = int(product["price"])
+        subtotal = price * quantity
+
+        log_action("カートに追加", total_price=subtotal,
+                   products=[name], quantities=[quantity], subtotals=[subtotal], page="詳細")
+    else:
+        log_action("カートに追加", page="詳細")
+
+    return "", 204
+
 
 
 @app.route('/cart', methods=['GET', 'POST'])
@@ -187,9 +202,34 @@ def confirm():
 
 @app.route('/complete', methods=['POST'])
 def complete():
-    log_action("購入確定", page="確認")
-    session["cart"] = {}
-    return render_template('thanks.html', cart_count=0)
+    cart = session.get("cart", {})
+    products = load_products()
+
+    product_names = []
+    quantities = []
+    subtotals = []
+
+    total_price = 0
+
+    for product_id, quantity in cart.items():
+        product = next((p for p in products if p["id"] == product_id), None)
+        if product:
+            name = product["name"]
+            price = int(product["price"])
+            subtotal = price * quantity
+
+            product_names.append(name)
+            quantities.append(quantity)
+            subtotals.append(subtotal)
+            total_price += subtotal
+
+    log_action("購入確定", total_price=total_price,
+               products=product_names, quantities=quantities, subtotals=subtotals, page="確認")
+
+    session["cart"] = {}  # ✅ カートを空にするのはログ記録のあと
+
+    return redirect(url_for("thanks"))
+
 
 
 @app.route('/thanks', methods=['POST'])
