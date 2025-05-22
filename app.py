@@ -94,7 +94,8 @@ def add_to_cart():
     cart[product_id] = cart.get(product_id, 0) + quantity
     session["cart"] = cart
     log_action("カートに追加", page="詳細")
-    return redirect(url_for("cart"))
+    return "", 204  # ✅ 非同期対応：空の成功レスポンス
+
 
 @app.route('/cart', methods=['GET', 'POST'])
 def cart():

@@ -49,14 +49,14 @@
     <!-- 左カラム（操作パネル） -->
     <div class="left-fixed">
         <p><strong>価格：</strong>¥{{ product.price }}</p>
-        <form action="{{ url_for('add_to_cart') }}" method="post">
-            <input type="hidden" name="product_id" value="{{ product.id }}">
+        <!-- ✅ 非同期カート追加に対応 -->
+        <form onsubmit="return addToCart('{{ product.id }}')">
             <div class="mb-3">
-                <input type="number" name="quantity" value="1" min="1" class="form-control">
+                <input type="number" name="quantity" value="1" min="1" id="quantity" class="form-control">
             </div>
             <button type="submit" class="btn btn-success w-100 mb-2">カートに追加</button>
         </form>
-        <!-- ✅ POSTでログ記録されるように修正 -->
+
         <form method="POST" action="{{ url_for('go_cart') }}">
             <button type="submit" class="btn btn-outline-primary w-100 mb-2">カートを見る</button>
         </form>
@@ -86,6 +86,30 @@
             {% endif %}
         </div>
     </div>
+
+    <!-- ✅ 非同期カート追加用JS -->
+    <script>
+    function addToCart(productId) {
+        const quantity = document.getElementById("quantity").value;
+
+        fetch("/add_to_cart", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `product_id=${productId}&quantity=${quantity}`
+        }).then(response => {
+            if (response.ok) {
+                updateCartBadge(quantity);
+            } else {
+                alert("カート追加に失敗しました");
+            }
+        });
+
+        return false; // 画面遷移を防ぐ
+    }
+    </script>
 </body>
 </html>
+
 
