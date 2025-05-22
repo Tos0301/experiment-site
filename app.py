@@ -167,6 +167,13 @@ def update_cart():
     log_action(f"数量更新: {product_id} → {quantity}", page="カート")
     return redirect(url_for("cart"))
 
+@app.route('/cart_count', methods=['GET'])
+def cart_count():
+    cart = session.get("cart", {})
+    count = sum(cart.values())
+    return jsonify({'count': count})
+
+
 
 @app.route('/go_confirm', methods=['POST'])
 def go_confirm():

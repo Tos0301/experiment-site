@@ -38,7 +38,7 @@
     <!-- 左カラム：価格・数量・操作 -->
     <div class="left-column">
         <h5>価格：¥{{ product.price }}</h5>
-        <form id="add-form">
+        <form id="add-to-cart-form">
             <input type="hidden" name="product_id" value="{{ product.id }}">
             <input type="number" name="quantity" value="1" min="1" class="form-control mb-2">
             <button type="submit" class="btn btn-success cart-button">カートに追加</button>
