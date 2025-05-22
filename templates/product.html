@@ -42,6 +42,11 @@
         .cart-button {
             width: 100%;
         }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 6px;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -64,7 +69,13 @@
             </form>
 
             <form method="POST" action="{{ url_for('go_cart') }}" class="mt-2">
-                <button type="submit" class="btn btn-outline-primary cart-button">カートを見る</button>
+                <button type="submit" class="btn btn-outline-primary cart-button">
+                    カートを見る
+                    {% if cart_count > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ cart_count }}
+                    </span>
+                </button>
             </form>
 
             <form method="POST" action="{{ url_for('back_to_index') }}" class="mt-2">
