@@ -74,11 +74,6 @@ def product_detail(product_id):
         specs=product.get("specs", "")  # ← ここが重要
     )
 
-@app.route('/back_to_index', methods=['POST'])
-def back_to_index():
-    log_action("商品一覧に戻る", page="カート")
-    return redirect(url_for('index'))
-
 
 @app.route('/go_product', methods=['POST'])
 def go_product():
@@ -126,18 +121,31 @@ def cart():
                    subtotals=[item["subtotal"] for item in cart_items])
     return render_template('cart.html', cart_items=cart_items, total=total, cart_count=cart_count)
 
+@app.route('/back_to_index', methods=['POST'])
+def back_to_index():
+    log_action("商品一覧に戻る", page="カート")
+    return redirect(url_for('index'))
+
+
 @app.route('/update_cart', methods=['POST'])
 def update_cart():
-    cart = {}
-    for key in request.form:
-        if key.startswith("quantity_"):
-            product_id = key.split("_")[1]
-            quantity = int(request.form[key])
-            if quantity > 0:
-                cart[product_id] = quantity
+    product_id = request.form.get("product_id")
+    try:
+        quantity = int(request.form.get("quantity", 1))
+    except (ValueError, TypeError):
+        quantity = 1  # 万が一無効な値が来たら1に戻す
+
+    cart = session.get("cart", {})
+
+    if quantity > 0:
+        cart[product_id] = quantity
+    else:
+        cart.pop(product_id, None)  # 存在しない場合でもエラーにしない
+
     session["cart"] = cart
-    log_action("カート更新", page="カート")
-    return redirect(url_for('cart'))
+    log_action(f"数量更新: {product_id} → {quantity}", page="カート")
+    return redirect(url_for("cart"))
+
 
 @app.route('/go_confirm', methods=['POST'])
 def go_confirm():
