@@ -176,29 +176,30 @@ def back_to_cart():
     log_action("カートに戻る", page="確認")
     return redirect(url_for('cart'))
 
-@app.route('/confirm', methods=['GET', 'POST'])
+@app.route('/confirm', methods=['GET'])
 def confirm():
     cart = session.get("cart", {})
     products = load_products()
+
     cart_items = []
     total = 0
+    cart_count = 0
+
     for product_id, quantity in cart.items():
         product = next((p for p in products if p["id"] == product_id), None)
         if product:
             subtotal = int(product["price"]) * quantity
-            total += subtotal
             cart_items.append({
-                "product": product,
+                "product": product,  # ← ここが重要
                 "quantity": quantity,
                 "subtotal": subtotal
             })
-    cart_count = sum(cart.values())
-    if request.method == 'POST':
-        log_action("購入確認画面表示", page="確認", total_price=total,
-                   products=[item["product"]["name"] for item in cart_items],
-                   quantities=[item["quantity"] for item in cart_items],
-                   subtotals=[item["subtotal"] for item in cart_items])
-    return render_template("confirm.html", cart_items=cart_items, total=total, cart_count=cart_count)
+            total += subtotal
+            cart_count += quantity
+
+    log_action("購入確認画面表示", page="確認")
+    return render_template("confirm.html", cart_items=cart_items, cart_count=cart_count, total=total)
+
 
 @app.route('/complete', methods=['POST'])
 def complete():
@@ -232,10 +233,9 @@ def complete():
 
 
 
-@app.route('/thanks', methods=['POST'])
+@app.route('/thanks', methods=['GET', 'POST'])
 def thanks():
     log_action("購入完了", page="完了")
-    session["cart"] = {}
     return render_template('thanks.html', cart_count=0)
 
 if __name__ == '__main__':

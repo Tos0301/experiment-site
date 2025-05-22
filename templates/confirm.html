@@ -69,7 +69,7 @@
         <tbody>
             {% for item in cart_items %}
                 <tr>
-                    <td>{{ item.name }}</td>
+                    <td>{{ item.product.name }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>¥{{ item.subtotal }}</td>
                 </tr>
