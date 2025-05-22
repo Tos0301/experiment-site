@@ -74,6 +74,11 @@ def product_detail(product_id):
         specs=product.get("specs", "")  # ← ここが重要
     )
 
+@app.route('/back_to_index', methods=['POST'])
+def back_to_index():
+    log_action("商品一覧に戻る", page="カート")
+    return redirect(url_for('index'))
+
 
 @app.route('/go_product', methods=['POST'])
 def go_product():
