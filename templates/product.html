@@ -54,14 +54,15 @@
     <div class="left-column">
         <div class="top-section">
             <h5>価格：¥{{ product.price }}</h5>
-            <form id="add-to-cart-form">
                 <input type="hidden" name="product_id" value="{{ product.id }}">
-                <input type="number" name="quantity" value="1" min="1" class="form-control mb-2">
-            </form>
+                <input type="number" name="quantity" value="1" min="1" class="form-control mb-2" form="add-to-cart-form">
         </div>
 
         <div class="bottom-buttons">
-            <button type="submit" class="btn btn-success cart-button">カートに追加</button>
+            <form id="add-to-cart-form" method="POST">
+                <input type="hidden" name="product_id" value="{{ product_id }}"
+                <button type="submit" class="btn btn-success cart-button">カートに追加</button>
+            </form>
 
             <form method="POST" action="{{ url_for('go_cart') }}" class="mt-2">
                 <button type="submit" class="btn btn-outline-primary cart-button">カートを見る</button>
