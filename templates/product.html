@@ -7,15 +7,18 @@
     <style>
         .container {
             display: flex;
-            justify-content: space-between;
+            gap: 40px;
             padding: 40px;
+            align-items: flex-start;
         }
+
+        /* 左カラム固定表示 */
         .left-column {
             width: 220px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 450px; /* 適度な高さを調整 */
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+            flex-shrink: 0;
         }
 
         .left-column .bottom-buttons {
@@ -25,13 +28,23 @@
             gap: 6px;
         }
 
-        .center-column {
+        /* 右側の全体（中央～詳細） */
+        .content-area {
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .center-column {
             text-align: center;
+            margin-bottom: 20px;
         }
+
         .right-column {
-            width: 400px;
+            width: 100%;
+            margin-bottom: 20px;
         }
+
         .product-img {
             max-width: 80%;
             max-height: 400px;
@@ -49,15 +62,15 @@
         }
 
         .product-detail-section {
-            margin-top: 40px;
+            margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #ccc;
             font-size: 15px;
         }
-
     </style>
 </head>
 <body class="bg-light">
+
 <div class="container">
     <!-- 左カラム：価格・数量・操作 -->
     <div class="left-column">
@@ -80,7 +93,6 @@
                         style="display: {{ 'inline-block' if cart_count > 0 else 'none' }};">
                         {{ cart_count }}
                     </span>
-
                 </button>
             </form>
 
@@ -90,30 +102,27 @@
         </div>
     </div>
 
+    <!-- 右側全体：画像・スペック・詳細 -->
+    <div class="content-area">
+        <div class="center-column">
+            <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="product-img">
+        </div>
 
+        <div class="right-column">
+            <h2>{{ product.name }}</h2>
+            <h4 class="text-muted">¥{{ product.price }}</h4>
+            <h5 class="mt-4">商品スペック</h5>
+            <p style="white-space: pre-line;">{{ specs }}</p>
+        </div>
 
-    <!-- 中央カラム：画像 -->
-    <div class="center-column">
-        <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="product-img">
+        {% if product.detail %}
+        <div class="product-detail-section bg-light border rounded p-4">
+            <h5>商品詳細</h5>
+            <p style="white-space: pre-line;">{{ product.detail | replace('\\n', '\n') }}</p>
+        </div>
+        {% endif %}
     </div>
-
-    <!-- 右カラム：商品情報 -->
-    <div class="right-column">
-        <h2>{{ product.name }}</h2>
-        <h4 class="text-muted">¥{{ product.price }}</h4>
-        <h5 class="mt-4">商品スペック</h5>
-        <p style="white-space: pre-line;">{{ specs }}</p>
-    </div>
-
 </div>
-
-{% if product.detail %}
-    <hr>
-    <div class="product-detail-section px-4 py-4 bg-light border rounded mt-4">
-        <h5>商品詳細</h5>
-        <p style="white-space: pre-line;">{{ product.detail | replace('\\n', '\n') }}</p>
-    </div>
-{% endif %}
 
 <script>
 function fetchCartCountAndUpdateBadge() {
@@ -133,7 +142,6 @@ function fetchCartCountAndUpdateBadge() {
         .catch(error => console.error("カート数の取得に失敗しました:", error));
 }
 
-// カートに追加後にバッジ更新
 function updateCartBadge() {
     fetchCartCountAndUpdateBadge();
 }
@@ -153,21 +161,16 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .then(response => response.json())
-        
         .then(data => {
-            // ✅ 修正点：IDを cart-badge にする
             const badge = document.getElementById("cart-badge");
             if (badge && data.cart_count !== undefined) {
                 badge.textContent = data.cart_count;
                 badge.style.display = "inline-block";
             }
-
-            // さらに安全にバッジ更新（冗長だけどOK）
             if (typeof updateCartBadge === "function") {
                 updateCartBadge();
             }
         })
-        
         .catch(error => {
             console.error("Error updating cart:", error);
         });
@@ -175,6 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-
 </body>
 </html>
+
