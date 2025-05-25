@@ -108,15 +108,12 @@
 </div>
 
 {% if product.detail %}
-<div class="product-detail-section">
-    <h5>商品詳細</h5>
-    <p style="white-space: pre-line;">{{ product.detail }}</p>
-</div>
+    <hr>
+    <div class="product-detail-section px-4 py-4 bg-light border rounded mt-4">
+        <h5>商品詳細</h5>
+        <p style="white-space: pre-line;">{{ product.detail }}</p>
+    </div>
 {% endif %}
-<div>
-
-
-</div>
 
 <script>
 function fetchCartCountAndUpdateBadge() {
