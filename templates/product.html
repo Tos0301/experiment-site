@@ -47,6 +47,14 @@
             font-size: 12px;
             padding: 4px 6px;
         }
+
+        .product-detail-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            font-size: 15px;
+        }
+
     </style>
 </head>
 <body class="bg-light">
@@ -96,6 +104,15 @@
         <h5 class="mt-4">商品スペック</h5>
         <p style="white-space: pre-line;">{{ specs }}</p>
     </div>
+
+    {% if product.detail %}
+    <div class="product-detail-section">
+        <h5>商品詳細</h5>
+        <p style="white-space: pre-line;">{{ product.detail }}</p>
+    </div>
+    {% endif %}
+
+
 </div>
 
 <script>
