@@ -111,7 +111,7 @@
     <hr>
     <div class="product-detail-section px-4 py-4 bg-light border rounded mt-4">
         <h5>商品詳細</h5>
-        <p style="white-space: pre-line;">{{ product.detail }}</p>
+        <p style="white-space: pre-line;">{{ product.detail | replace('\\n', '\n') }}</p>
     </div>
 {% endif %}
 
