@@ -105,12 +105,15 @@
         <p style="white-space: pre-line;">{{ specs }}</p>
     </div>
 
-    {% if product.detail %}
-    <div class="product-detail-section">
-        <h5>商品詳細</h5>
-        <p style="white-space: pre-line;">{{ product.detail }}</p>
-    </div>
-    {% endif %}
+</div>
+
+{% if product.detail %}
+<div class="product-detail-section">
+    <h5>商品詳細</h5>
+    <p style="white-space: pre-line;">{{ product.detail }}</p>
+</div>
+{% endif %}
+<div>
 
 
 </div>
