@@ -56,12 +56,27 @@ def input_id():
 
 @app.route('/set_id', methods=['POST'])
 def set_participant_id():
-    participant_id = request.form.get("participant_id")
-    if participant_id:
-        session["participant_id"] = participant_id
-        log_action("ID入力", page="ID")
-        return redirect(url_for("index"))
-    return redirect(url_for("input_id"))
+    prefix = request.form.get("prefix", "").upper()
+    birthdate = request.form.get("birthdate", "")
+    suffix = request.form.get("suffix", "")
+    
+    if not (prefix and birthdate and suffix):
+        return redirect(url_for("input_id"))
+
+    participant_id = f"{prefix}{birthdate}{suffix}"
+    session["participant_id"] = participant_id
+
+    # 任意：ログを記録
+    log_action("ID入力", page="ID")  # log_action関数があれば
+
+    return redirect(url_for("confirm_id"))
+
+@app.route('/confirm_id', methods=['GET', 'POST'])
+def confirm_id():
+    participant_id = session.get("participant_id", "")
+    if not participant_id:
+        return redirect(url_for("input_id"))
+    return render_template("confirm_id.html", participant_id=participant_id)
 
 @app.route('/index', methods=['GET', 'POST'])
 def index():
