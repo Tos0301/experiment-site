@@ -63,6 +63,11 @@ def load_specs():
             specs[product_id] = row["specs"]
     return specs
 
+@app.route('/reset_session')
+def reset_session():
+    session.clear()
+    return "セッションを初期化しました"
+
 
 @app.route('/')
 def input_id():
@@ -95,7 +100,9 @@ def confirm_id():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     products = load_products()
-    cart_count = sum(item['quantity'] for item in session.get("cart", []))
+    cart = session.get("cart", [])
+    cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
+
     if request.method == 'POST':
         log_action("商品一覧表示", page="一覧")
     return render_template('index.html', products=products, cart_count=cart_count)
@@ -105,7 +112,9 @@ def product_detail(product_id):
     products = load_products()
     product = next((p for p in products if p["id"] == product_id), None)
     specs_data = load_specs()
-    cart_count = sum(item['quantity'] for item in session.get("cart", []))  # ← 修正済み
+    cart = session.get("cart", [])
+    cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
+
 
     image_list = []
     if product and "image" in product:
@@ -257,8 +266,9 @@ def update_cart():
 @app.route('/cart_count', methods=['GET'])
 def cart_count():
     cart = session.get("cart", [])
-    count = sum(item['quantity'] for item in cart)
+    count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
     return jsonify({'count': count})
+
 
 
 
@@ -267,9 +277,9 @@ def go_confirm():
     log_action("確認画面へ進む", page="カート")
     return redirect(url_for('confirm'))
 
-@app.route('/back_to_index', methods=['POST'])
-def go_index():
-    return redirect(url_for('index'))
+#@app.route('/back_to_index', methods=['POST'])
+#def go_index():
+    #return redirect(url_for('index'))
 
 @app.route('/back_to_cart', methods=['POST'])
 def back_to_cart():
