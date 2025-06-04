@@ -171,12 +171,14 @@ def add_to_cart():
     # 同じ商品・色・サイズの組み合わせがあれば統合
     found = False
     for item in cart:
-        if item["product_id"] == new_item["product_id"] and \
-            item["color"] == new_item["color"] and \
-            item["size"] == new_item["size"]:
+        if isinstance(item, dict) and \
+            item.get("product_id") == new_item["product_id"] and \
+            item.get("color") == new_item["color"] and \
+            item.get("size") == new_item["size"]:
             item["quantity"] += quantity
             found = True
-        break
+            break
+
 
     if not found:
         cart.append(new_item)
