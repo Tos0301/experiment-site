@@ -238,7 +238,7 @@ def cart():
                 filename = f"{image_base}_{color}_1.jpg"
             else:
                 filename = f"{image_base}_1.jpg"
-            image_path = f"images/{filename}"  # static配下を基準とする
+            image_path = f"images/{image_base}_{color}_1.jpg"
 
             cart_items.append({
                 "product": product,
