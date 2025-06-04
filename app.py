@@ -115,12 +115,10 @@ def product_detail(product_id):
     cart = session.get("cart", [])
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
 
-
     image_list = []
     if product and "image" in product:
         image_prefix = product["image"].rsplit(".", 1)[0]  # mug01
         image_folder = os.path.join("static", "images")
-        image_list = []
         for i in range(1, 6):  # 最大5枚程度
             filename = f"{image_prefix}_{i}.jpg"
             path = os.path.join(image_folder, filename)
@@ -221,7 +219,7 @@ def cart():
         product = next((p for p in products if p["id"] == item["product_id"]), None)
         if product:
             subtotal = int(product["price"]) * item["quantity"]
-            otal += subtotal
+            total += subtotal
 
             # ✅ color に基づく画像ファイル名を構築
             color = item.get("color", "").strip().lower()
@@ -289,7 +287,7 @@ def update_cart():
         else:
             new_cart.append(item)  # 存在しない場合でもエラーにしない
 
-    session["cart"] = cart
+    session["cart"] = new_cart
     log_action(f"数量更新: {product_id} → {quantity}", page="カート")
     return redirect(url_for("cart"))
 
