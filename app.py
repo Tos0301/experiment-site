@@ -230,12 +230,19 @@ def cart():
         if product:
             subtotal = int(product["price"]) * item["quantity"]
             total += subtotal
+
+            image_base = product["image"].rsplit(".", 1)[0]
+            color = item.get("color", "")
+            filename = f"{image_base}_{color}_1.jpg" if color else f"{image_base}_1.jpg"
+            image_path = f"images/{filename}"
+            
             cart_items.append({
                 "product": product,
                 "quantity": item["quantity"],
                 "subtotal": subtotal,
                 "color": item.get("color", ""),
                 "size": item.get("size", "")
+                "image_path": image_path
             })
     
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
