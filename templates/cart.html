@@ -61,6 +61,8 @@
         <thead class="table-light text-center">
             <tr>
                 <th>商品</th>
+                <th>カラー</th>   <!-- 追加 -->
+                <th>サイズ</th>
                 <th>数量</th>
                 <th>小計</th>
             </tr>
@@ -73,13 +75,20 @@
                          alt="{{ item.product.name }}" class="img-fluid product-img">
                     <div class="mt-2">{{ item.product.name }}</div>
                 </td>
+
+                <td class="text-center">{{ item.color or '-' }}</td>   <!-- カラー表示 -->
+                <td class="text-center">{{ item.size or '-' }}</td>    <!-- サイズ表示 -->
+
                 <td class="text-center">
                     <form method="POST" action="{{ url_for('update_cart') }}">
                         <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                        <input type="hidden" name="color" value="{{ item.color }}">
+                        <input type="hidden" name="size" value="{{ item.size }}">
                         <input type="number" name="quantity" value="{{ item.quantity }}"
                                min="0" onchange="this.form.submit()" class="form-control quantity-input">
                     </form>
                 </td>
+                
                 <td class="text-center">¥{{ item.subtotal }}</td>
             </tr>
             {% endfor %}
