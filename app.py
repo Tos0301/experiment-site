@@ -241,7 +241,7 @@ def cart():
                 "quantity": item["quantity"],
                 "subtotal": subtotal,
                 "color": item.get("color", ""),
-                "size": item.get("size", "")
+                "size": item.get("size", ""),
                 "image_path": image_path
             })
     
