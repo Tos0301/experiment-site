@@ -109,9 +109,19 @@
 
 <div class="container">
     <div class="main-section">
-        <div class="image-column">
-            <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}">
+        <div class="image-column position-relative text-center">
+            {% if image_list|length > 1 %}
+            <button id="prev-btn" class="btn btn-light position-absolute start-0 top-50 translate-middle-y">←</button>
+            <button id="next-btn" class="btn btn-light position-absolute end-0 top-50 translate-middle-y">→</button>
+            {% endif %}
+    
+            <img id="product-image"
+                src="{{ url_for('static', filename='images/' + image_list[0]) }}"
+                alt="{{ product.name }}"
+                class="img-fluid"
+                style="max-height: 400px; object-fit: contain;">
         </div>
+    
 
         <div class="info-column">
             <h2>{{ product.name }}</h2>
@@ -128,6 +138,8 @@
     </div>
     {% endif %}
 </div>
+
+
 
 <script>
 function fetchCartCountAndUpdateBadge() {
@@ -180,6 +192,33 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Error updating cart:", error);
         });
     });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const imageList = {{ image_list | tojson }};
+    let currentIndex = 0;
+    const imageEl = document.getElementById("product-image");
+
+    const updateImage = () => {
+        imageEl.src = `/static/images/${imageList[currentIndex]}`;
+    };
+
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+            currentIndex = (currentIndex - 1 + imageList.length) % imageList.length;
+            updateImage();
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            currentIndex = (currentIndex + 1) % imageList.length;
+            updateImage();
+        });
+    }
 });
 </script>
 

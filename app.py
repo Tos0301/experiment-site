@@ -92,13 +92,27 @@ def product_detail(product_id):
     product = next((p for p in products if p["id"] == product_id), None)
     specs_data = load_specs()
     cart_count = sum(session.get("cart", {}).values())
+
+    image_list = []
+    if product and "image" in product:
+        image_prefix = product["image"].rsplit(".", 1)[0]  # mug01
+        image_folder = os.path.join("static", "images")
+        image_list = []
+        for i in range(1, 6):  # 最大5枚程度
+            filename = f"{image_prefix}_{i}.jpg"
+            path = os.path.join(image_folder, filename)
+            if os.path.exists(path):
+                image_list.append(filename)
+
     if request.method == 'POST':
         log_action(f"商品詳細表示: {product_id}", page="詳細")
+    
     return render_template(
         'product.html',
         product=product,
         cart_count=cart_count,
-        specs=specs_data.get(product_id, "(商品説明がありません)")  # ← ここが重要
+        specs=specs_data.get(product_id, "(商品説明がありません)"),
+        image_list=image_list
     )
 
 
