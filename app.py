@@ -208,6 +208,14 @@ def add_to_cart():
 
 
 @app.route('/cart', methods=['GET', 'POST'])
+def image_filename(item):
+    base_image = item["product"]["image"].rsplit('.', 1)[0]  # 例: mug01 → mug01
+    color = item.get("color", "").strip().lower()
+    if color:
+        return f"{base_image}_{color}_1.jpg"
+    else:
+        return f"{base_image}_1.jpg"
+
 def cart():
     products = load_products()
     cart = session.get("cart", [])
@@ -236,7 +244,13 @@ def cart():
                    products=[item["product"]["name"] for item in cart_items],
                    quantities=[item["quantity"] for item in cart_items],
                    subtotals=[item["subtotal"] for item in cart_items])
-    return render_template('cart.html', cart_items=cart_items, total=total, cart_count=cart_count)
+    return render_template(
+        'cart.html', 
+        cart_items=cart_items, 
+        total=total, 
+        cart_count=cart_count,
+        image_filename=image_filename
+    )
 
 @app.route('/back_to_index', methods=['POST'])
 def back_to_index():

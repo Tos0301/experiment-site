@@ -72,8 +72,9 @@
             <tr>
                 <td class="text-center">
                     {% if item.product.image %}
-                        <img src="{{ url_for('static', filename='images/' + item.product.image) }}"
-                            alt="{{ item.product.name }}" class="img-fluid product-img">
+                        <img src="{{ url_for('static', filename='images/' + image_filename(item)) }}"
+                             alt="{{ item.product.name }}" class="img-fluid product-img">
+
                     {% else %}
                         <div class="text-muted" style="height: 100px; display: flex; align-items: center; justify-content: center;">
                             画像なし
