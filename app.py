@@ -207,7 +207,7 @@ def add_to_cart():
 
 
 
-@app.route('/cart', methods=['GET', 'POST'])
+@app.route('/cart', methods=['GET', 'POST'], endpoint="cart")
 def image_filename(item):
     base_image = item["product"]["image"].rsplit('.', 1)[0]  # 例: mug01 → mug01
     color = item.get("color", "").strip().lower()
