@@ -181,7 +181,8 @@ def add_to_cart():
     if not found:
         cart.append(new_item)
 
-    session["cart"] = cart
+    session["cart"] = [item for item in cart if isinstance(item, dict) and 'product_id' in item]
+
 
 
     if product:
@@ -196,7 +197,7 @@ def add_to_cart():
 
     # ✅ 非同期(fetch)リクエストの場合はJSONで返す
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        cart_count = sum(cart.values())
+        cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
         return jsonify({"cart_count": cart_count})
 
     # ✅ 通常遷移のときはリダイレクト（使っていないなら return "", 204 のままでもOK）
