@@ -105,7 +105,7 @@ def product_detail(product_id):
     products = load_products()
     product = next((p for p in products if p["id"] == product_id), None)
     specs_data = load_specs()
-    cart_count = sum(session.get("cart", []).values())
+    cart_count = sum(item['quantity'] for item in session.get("cart", []))  # ← 修正済み
 
     image_list = []
     if product and "image" in product:
