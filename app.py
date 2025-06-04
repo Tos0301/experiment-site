@@ -207,15 +207,7 @@ def add_to_cart():
 
 
 
-@app.route('/cart', methods=['GET', 'POST'], endpoint="cart")
-def image_filename(item):
-    base_image = item["product"]["image"].rsplit('.', 1)[0]  # 例: mug01 → mug01
-    color = item.get("color", "").strip().lower()
-    if color:
-        return f"{base_image}_{color}_1.jpg"
-    else:
-        return f"{base_image}_1.jpg"
-
+@app.route('/cart', methods=['GET', 'POST'])
 def cart():
     products = load_products()
     cart = session.get("cart", [])
@@ -232,8 +224,9 @@ def cart():
             otal += subtotal
 
             # ✅ color に基づく画像ファイル名を構築
-            color = item.get("color", "")
+            color = item.get("color", "").strip().lower()
             image_base = product["image"].rsplit(".", 1)[0]  # "mag_c" を取得
+            
             if color:
                 filename = f"{image_base}_{color}_1.jpg"
             else:
@@ -251,17 +244,18 @@ def cart():
 
     
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
+    
     if request.method == 'POST':
         log_action("カート表示", page="カート", total_price=total,
                    products=[item["product"]["name"] for item in cart_items],
                    quantities=[item["quantity"] for item in cart_items],
                    subtotals=[item["subtotal"] for item in cart_items])
+    
     return render_template(
         'cart.html', 
         cart_items=cart_items, 
         total=total, 
         cart_count=cart_count,
-        image_filename=image_filename
     )
 
 @app.route('/back_to_index', methods=['POST'])
