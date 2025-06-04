@@ -212,6 +212,9 @@ def cart():
     total = 0
 
     for item in cart:
+        if not isinstance(item, dict):
+            continue  # 不正なデータはスキップ
+
         product = next((p for p in products if p["id"] == item["product_id"]), None)
         if product:
             subtotal = int(product["price"]) * item["quantity"]
@@ -251,6 +254,10 @@ def update_cart():
     cart = session.get("cart", [])
     new_cart = []
     for item in cart:
+        
+        if not isinstance(item, dict):
+            continue  # 不正なデータはスキップ
+
         if item["product_id"] == product_id and item["color"] == color and item["size"] == size:
             if quantity > 0:
                 item["quantity"] = quantity
@@ -296,6 +303,9 @@ def confirm():
     cart_count = 0
 
     for item in cart:
+        if not isinstance(item, dict):
+            continue  # 不正なデータはスキップ
+
         product_id = item['product_id']
         quantity = item['quantity']
         product = next((p for p in products if p["id"] == product_id), None)
@@ -318,6 +328,7 @@ def confirm():
 
 @app.route('/complete', methods=['POST'])
 def complete():
+    
     cart = session.get("cart", [])
     products = load_products()
 
@@ -328,6 +339,9 @@ def complete():
     total_price = 0
 
     for item in cart:
+        if not isinstance(item, dict):
+            continue  # 不正なデータはスキップ
+        
         product_id = item['product_id']
         quantity = item['quantity']
         product = next((p for p in products if p["id"] == product_id), None)
