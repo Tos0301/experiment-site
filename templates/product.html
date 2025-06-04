@@ -26,6 +26,7 @@
             position: fixed;
             top: 0;
             left: 0;
+            justify-content: space-between;
             height: 100vh;
             padding: 40px 20px;
             background-color: #f8f9fa;
@@ -84,8 +85,29 @@
     </div>
 
     <div class="bottom-buttons">
-        <form id="add-to-cart-form" method="POST">
+        <form id="add-to-cart-form" method="POST" class="mb-2">
             <input type="hidden" name="product_id" value="{{ product.id }}">
+
+            {% if product.colors %}
+            <label for="color">カラー:</label>
+            <select name="color" id="color" class="form-control mb-2" onchange="updateImageByColor()">
+                {% for color in product.colors %}
+                <option value="{{ color }}" {% if loop.first %}selected{% endif %} >{{ color }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+
+            <!-- サイズ -->
+            {% if product.sizes %}
+            <label for="size">サイズ:</label>
+            <select name="size" class="form-control mb-2">
+                {% for size in product.sizes %}
+                <option value="{{ size }}">{{ size }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+
+
             <input type="number" name="quantity" value="1" min="1" class="form-control mb-2">
             <button type="submit" class="btn btn-success cart-button">カートに追加</button>
         </form>
@@ -142,6 +164,9 @@
 
 
 <script>
+
+let currentIndex = 0;  // グローバルに定義（色変更時にも使う）
+
 function fetchCartCountAndUpdateBadge() {
     fetch("/cart_count")
         .then(response => response.json())
@@ -163,7 +188,28 @@ function updateCartBadge() {
     fetchCartCountAndUpdateBadge();
 }
 
+function updateImageByColor() {
+    const color = document.getElementById("color").value;
+    const imageEl = document.getElementById("product-image");
+    const imagePrefix = "{{ product.image.rsplit('.', 1)[0] }}";  // 例: mug_a
+    const newFilename = `${imagePrefix}_${color}_1.jpg`;
+
+    currentIndex = 0;
+
+    // スライダーの先頭画像だけ差し替える
+    imageEl.src = `/static/images/${newFilename}`;
+    imageEl.onerror = () => {
+        imageEl.src = `/static/images/${imagePrefix}_1.jpg`;
+    };
+
+    // imageList[0] も仮に置き換えたければ次のようにする（option）
+    // imageList[0] = `${imagePrefix}_${color}_1.jpg`;
+}
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
+    updateImageByColor();  
     const form = document.getElementById("add-to-cart-form");
 
     form.addEventListener("submit", function (e) {
@@ -196,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.addEventListener("DOMContentLoaded", function () {
     const imageList = {{ image_list | tojson }};
-    let currentIndex = 0;
+    currentIndex = 0;
     const imageEl = document.getElementById("product-image");
 
     const updateImage = () => {

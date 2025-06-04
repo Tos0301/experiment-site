@@ -36,8 +36,15 @@ def log_action(action, page="", total_price=0, products=None, quantities=None, s
     ])
 
 def load_products():
-    df = pd.read_csv("data/products.csv", dtype=str)
-    return df.to_dict(orient="records")
+    df = pd.read_csv("data/products.csv", dtype=str).fillna("")  # 欠損を空文字で埋める
+    products = df.to_dict(orient="records")
+    
+    for product in products:
+        product['colors'] = product['colors'].split('|') if product['colors'] else []
+        product['sizes'] = product['sizes'].split('|') if product['sizes'] else []
+    
+    return products
+
 
 def load_specs():
     specs = {}
