@@ -191,7 +191,11 @@ function updateCartBadge() {
 function updateImageByColor() {
     const color = document.getElementById("color").value;
     const imageEl = document.getElementById("product-image");
-    const imagePrefix = "{{ product.image.rsplit('.', 1)[0] }}";  // 例: mug_a
+    {% if product.image %}
+        const imagePrefix = "{{ product.image.rsplit('.', 1)[0] }}";
+    {% else %}
+        const imagePrefix = "noimage";
+    {% endif %}
     const newFilename = `${imagePrefix}_${color}_1.jpg`;
 
     currentIndex = 0;

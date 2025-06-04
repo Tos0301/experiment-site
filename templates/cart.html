@@ -71,8 +71,15 @@
             {% for item in cart_items %}
             <tr>
                 <td class="text-center">
-                    <img src="{{ url_for('static', filename='images/' + item.product.image) }}"
-                         alt="{{ item.product.name }}" class="img-fluid product-img">
+                    {% if item.product.image %}
+                        <img src="{{ url_for('static', filename='images/' + item.product.image) }}"
+                            alt="{{ item.product.name }}" class="img-fluid product-img">
+                    {% else %}
+                        <div class="text-muted" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                            画像なし
+                        </div>
+                    {% endif %}
+
                     <div class="mt-2">{{ item.product.name }}</div>
                 </td>
 
@@ -88,7 +95,7 @@
                                min="0" onchange="this.form.submit()" class="form-control quantity-input">
                     </form>
                 </td>
-                
+
                 <td class="text-center">¥{{ item.subtotal }}</td>
             </tr>
             {% endfor %}

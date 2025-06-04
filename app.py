@@ -228,7 +228,7 @@ def cart():
                 "size": item.get("size", "")
             })
     
-    cart_count = sum(item['quantity'] for item in cart)
+    cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
     if request.method == 'POST':
         log_action("カート表示", page="カート", total_price=total,
                    products=[item["product"]["name"] for item in cart_items],
