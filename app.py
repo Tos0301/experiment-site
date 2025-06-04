@@ -224,26 +224,31 @@ def cart():
 
     for item in cart:
         if not isinstance(item, dict):
-            continue  # 不正なデータはスキップ
+            continue
 
         product = next((p for p in products if p["id"] == item["product_id"]), None)
         if product:
             subtotal = int(product["price"]) * item["quantity"]
-            total += subtotal
+            otal += subtotal
 
-            image_base = product["image"].rsplit(".", 1)[0]
+            # ✅ color に基づく画像ファイル名を構築
             color = item.get("color", "")
-            filename = f"{image_base}_{color}_1.jpg" if color else f"{image_base}_1.jpg"
-            image_path = f"images/{filename}"
-            
+            image_base = product["image"].rsplit(".", 1)[0]  # "mag_c" を取得
+            if color:
+                filename = f"{image_base}_{color}_1.jpg"
+            else:
+                filename = f"{image_base}_1.jpg"
+            image_path = f"images/{filename}"  # static配下を基準とする
+
             cart_items.append({
                 "product": product,
                 "quantity": item["quantity"],
                 "subtotal": subtotal,
-                "color": item.get("color", ""),
+                "color": color,
                 "size": item.get("size", ""),
-                "image_path": image_path
+                "image_path": image_path  # ✅ ここが cart.html で参照される
             })
+
     
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
     if request.method == 'POST':
