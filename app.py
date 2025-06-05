@@ -115,18 +115,18 @@ def product_detail(product_id):
     cart = session.get("cart", [])
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
 
-    # --- base_prefix の追加処理 ---
     base_prefix = "noimage"
-    if product and "image" in product and product["image"]:
-        parts = product["image"].rsplit("_", 2)
-        if len(parts) >= 3:
-            base_prefix = "_".join(parts[:-2])
-        else:
-            base_prefix = product["image"].rsplit(".", 1)[0]  # フォールバック
-
-    # --- image_list の生成（任意） ---
     image_list = []
-    if product and "image" in product:
+
+    if product and product.get("image"):
+        # 例: towel_b_sand-beige_1.jpg → towel_b_sand-beige
+        filename_no_ext = product["image"].rsplit(".", 1)[0]
+        if filename_no_ext.endswith("_1"):
+            base_prefix = filename_no_ext[:-2]  # "_1"を除去
+        else:
+            base_prefix = filename_no_ext
+
+        # 画像リスト生成（1〜5枚）
         image_folder = os.path.join("static", "images")
         for i in range(1, 6):
             filename = f"{base_prefix}_{i}.jpg"
@@ -143,7 +143,7 @@ def product_detail(product_id):
         cart_count=cart_count,
         specs=specs_data.get(product_id, "(商品説明がありません)"),
         image_list=image_list,
-        base_prefix=base_prefix  # ← ★追加
+        base_prefix=base_prefix  # JSに渡す場合のみ
     )
 
 
