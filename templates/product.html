@@ -92,12 +92,11 @@
             <label for="color">カラー:</label>
             <select name="color" id="color" class="form-control mb-2" onchange="updateImageByColor()">
                 {% for color in product.colors %}
-                <option value="{{ color }}" {% if loop.first %}selected{% endif %} >{{ color }}</option>
+                <option value="{{ color }}" {% if loop.first %}selected{% endif %}>{{ color }}</option>
                 {% endfor %}
             </select>
             {% endif %}
 
-            <!-- サイズ -->
             {% if product.sizes %}
             <label for="size">サイズ:</label>
             <select name="size" class="form-control mb-2">
@@ -107,7 +106,6 @@
             </select>
             {% endif %}
 
-
             <input type="number" name="quantity" value="1" min="1" class="form-control mb-2">
             <button type="submit" class="btn btn-success cart-button">カートに追加</button>
         </form>
@@ -116,8 +114,8 @@
             <button type="submit" class="btn btn-outline-primary cart-button">
                 カートを見る
                 <span id="cart-badge"
-                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                      style="display: {{ 'inline-block' if cart_count > 0 else 'none' }};">
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    style="display: {{ 'inline-block' if cart_count > 0 else 'none' }};">
                     {{ cart_count }}
                 </span>
             </button>
@@ -136,14 +134,13 @@
             <button id="prev-btn" class="btn btn-light position-absolute start-0 top-50 translate-middle-y">←</button>
             <button id="next-btn" class="btn btn-light position-absolute end-0 top-50 translate-middle-y">→</button>
             {% endif %}
-    
+
             <img id="product-image"
-                src="{{ url_for('static', filename='images/' + image_list[0]) }}"
-                alt="{{ product.name }}"
-                class="img-fluid"
-                style="max-height: 400px; object-fit: contain;">
+                 src="{{ url_for('static', filename='images/' + image_list[0]) }}"
+                 alt="{{ product.name }}"
+                 class="img-fluid"
+                 style="max-height: 400px; object-fit: contain;">
         </div>
-    
 
         <div class="info-column">
             <h2>{{ product.name }}</h2>
@@ -161,11 +158,9 @@
     {% endif %}
 </div>
 
-
-
 <script>
-
-let currentIndex = 0;  // グローバルに定義（色変更時にも使う）
+let currentIndex = 0;
+let imageList = {{ image_list | tojson }};
 
 function fetchCartCountAndUpdateBadge() {
     fetch("/cart_count")
@@ -173,15 +168,10 @@ function fetchCartCountAndUpdateBadge() {
         .then(data => {
             const badge = document.getElementById("cart-badge");
             if (badge) {
-                if (data.count > 0) {
-                    badge.innerText = data.count;
-                    badge.style.display = "inline-block";
-                } else {
-                    badge.style.display = "none";
-                }
+                badge.innerText = data.count;
+                badge.style.display = data.count > 0 ? "inline-block" : "none";
             }
-        })
-        .catch(error => console.error("カート数の取得に失敗しました:", error));
+        });
 }
 
 function updateCartBadge() {
@@ -189,43 +179,35 @@ function updateCartBadge() {
 }
 
 function updateImageByColor() {
-    const color = document.getElementById("color").value;
+    const color = document.getElementById("color")?.value;
     const imageEl = document.getElementById("product-image");
+
     {% if product.image %}
         const imagePrefix = "{{ product.image.rsplit('.', 1)[0] }}";
     {% else %}
         const imagePrefix = "noimage";
     {% endif %}
-    const newFilename = `${imagePrefix}_${color}_1.jpg`;
 
-    currentIndex = 0;
-
-    // スライダーの先頭画像だけ差し替える
-    imageEl.src = `/static/images/${newFilename}`;
+    const newImage = `${imagePrefix}_${color}_1.jpg`;
+    imageEl.src = `/static/images/${newImage}`;
     imageEl.onerror = () => {
-        imageEl.src = `/static/images/${imagePrefix}_1.jpg`;
+        imageEl.src = `/static/images/${imageList[0]}`;  // 元の画像に戻す
     };
 
-    // imageList[0] も仮に置き換えたければ次のようにする（option）
-    // imageList[0] = `${imagePrefix}_${color}_1.jpg`;
+    // スライダー配列自体は変更しない
 }
 
-
-
 document.addEventListener("DOMContentLoaded", function () {
-    updateImageByColor();  
-    const form = document.getElementById("add-to-cart-form");
+    updateImageByColor();
 
+    const form = document.getElementById("add-to-cart-form");
     form.addEventListener("submit", function (e) {
         e.preventDefault();
-
         const formData = new FormData(form);
         fetch("/add_to_cart", {
             method: "POST",
             body: formData,
-            headers: {
-                "X-Requested-With": "XMLHttpRequest"
-            }
+            headers: { "X-Requested-With": "XMLHttpRequest" }
         })
         .then(response => response.json())
         .then(data => {
@@ -234,27 +216,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 badge.textContent = data.cart_count;
                 badge.style.display = "inline-block";
             }
-            if (typeof updateCartBadge === "function") {
-                updateCartBadge();
-            }
-        })
-        .catch(error => {
-            console.error("Error updating cart:", error);
         });
     });
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-    const imageList = {{ image_list | tojson }};
-    currentIndex = 0;
     const imageEl = document.getElementById("product-image");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
 
     const updateImage = () => {
         imageEl.src = `/static/images/${imageList[currentIndex]}`;
     };
-
-    const prevBtn = document.getElementById("prev-btn");
-    const nextBtn = document.getElementById("next-btn");
 
     if (prevBtn) {
         prevBtn.addEventListener("click", () => {
@@ -274,5 +245,3 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 </html>
-
-
