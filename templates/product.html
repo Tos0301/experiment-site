@@ -183,19 +183,27 @@ function updateImageByColor() {
     const imageEl = document.getElementById("product-image");
 
     {% if product.image %}
-        const imagePrefix = "{{ product.image.rsplit('.', 1)[0] }}";
+        const basePrefix = "{{ product.image.split('_').slice(0, -2)|join('_') }}";
     {% else %}
-        const imagePrefix = "noimage";
+        const basePrefix = "noimage";
     {% endif %}
 
-    const newImage = `${imagePrefix}_${color}_1.jpg`;
-    imageEl.src = `/static/images/${newImage}`;
-    imageEl.onerror = () => {
-        imageEl.src = `/static/images/${imageList[0]}`;  // 元の画像に戻す
-    };
+    // 画像リストを更新（1枚目は色付き、2枚目以降は共通）
+    imageList = [
+        `${basePrefix}_${color}_1.jpg`,
+        `${basePrefix}_2.jpg`,
+        `${basePrefix}_3.jpg`,
+        `${basePrefix}_4.jpg`,
+        `${basePrefix}_5.jpg`
+    ];
 
-    // スライダー配列自体は変更しない
+    currentIndex = 0;
+    imageEl.src = `/static/images/${imageList[0]}`;
+    imageEl.onerror = () => {
+        imageEl.src = `/static/images/fallback.jpg`;
+    };
 }
+
 
 document.addEventListener("DOMContentLoaded", function () {
     updateImageByColor();
