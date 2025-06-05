@@ -115,26 +115,37 @@ def product_detail(product_id):
     cart = session.get("cart", [])
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
 
+    # --- base_prefix の追加処理 ---
+    base_prefix = "noimage"
+    if product and "image" in product and product["image"]:
+        parts = product["image"].rsplit("_", 2)
+        if len(parts) >= 3:
+            base_prefix = "_".join(parts[:-2])
+        else:
+            base_prefix = product["image"].rsplit(".", 1)[0]  # フォールバック
+
+    # --- image_list の生成（任意） ---
     image_list = []
     if product and "image" in product:
-        image_prefix = product["image"].rsplit(".", 1)[0]  # mug01
         image_folder = os.path.join("static", "images")
-        for i in range(1, 6):  # 最大5枚程度
-            filename = f"{image_prefix}_{i}.jpg"
+        for i in range(1, 6):
+            filename = f"{base_prefix}_{i}.jpg"
             path = os.path.join(image_folder, filename)
             if os.path.exists(path):
                 image_list.append(filename)
 
     if request.method == 'POST':
         log_action(f"商品詳細表示: {product_id}", page="詳細")
-    
+
     return render_template(
         'product.html',
         product=product,
         cart_count=cart_count,
         specs=specs_data.get(product_id, "(商品説明がありません)"),
-        image_list=image_list
+        image_list=image_list,
+        base_prefix=base_prefix  # ← ★追加
     )
+
 
 
 @app.route('/go_product', methods=['POST'])

@@ -183,12 +183,11 @@ function updateImageByColor() {
     const imageEl = document.getElementById("product-image");
 
     {% if product.image %}
-        const basePrefix = "{{ product.image.split('_').slice(0, -2)|join('_') }}";
+        const basePrefix = "{{ basePrefix }}";
     {% else %}
         const basePrefix = "noimage";
     {% endif %}
 
-    // 画像リストを更新（1枚目は色付き、2枚目以降は共通）
     imageList = [
         `${basePrefix}_${color}_1.jpg`,
         `${basePrefix}_2.jpg`,
@@ -203,6 +202,7 @@ function updateImageByColor() {
         imageEl.src = `/static/images/fallback.jpg`;
     };
 }
+
 
 
 document.addEventListener("DOMContentLoaded", function () {
