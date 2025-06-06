@@ -183,7 +183,7 @@ function updateImageByColor() {
     const imageEl = document.getElementById("product-image");
 
     {% if product.image %}
-        const basePrefix = "{{ basePrefix }}";
+        const basePrefix = "{{ base_prefix }}";
     {% else %}
         const basePrefix = "noimage";
     {% endif %}
