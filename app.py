@@ -413,6 +413,14 @@ def thanks():
     log_action("購入完了", page="完了")
     return render_template('thanks.html', cart_count=0)
 
+
+@app.route('/form_embed')
+def form_embed():
+    participant_id = session.get("participant_id", "")
+    log_action('Googleフォーム埋め込み表示', page='/form_embed')
+    return render_template('googleform.html', participant_id=participant_id)
+
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
