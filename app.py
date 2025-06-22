@@ -68,10 +68,18 @@ def reset_session():
     session.clear()
     return "セッションを初期化しました"
 
+@app.route('/', methods=['GET', 'POST'])
+def start():
+    if request.method == 'POST':
+        log_action("実験開始", page="start")
+        return redirect(url_for("input_id"))
+    return render_template("start.html")
 
-@app.route('/')
+
+@app.route('/input_id')
 def input_id():
     return render_template('input_id.html')
+
 
 @app.route('/set_id', methods=['POST'])
 def set_participant_id():
@@ -96,6 +104,8 @@ def confirm_id():
     if not participant_id:
         return redirect(url_for("input_id"))
     return render_template("confirm_id.html", participant_id=participant_id)
+
+
 
 @app.route('/index', methods=['GET', 'POST'])
 def index():
