@@ -112,8 +112,11 @@ def confirm_id():
 def index():
     if 'condition' not in session:
         session['condition'] = random.choice(['control', 'experiment'])    
-        print(f"Assigned condition: {session['condition']}")  # ★ 追加
-        
+        print(f"🎯 Assigned new condition: {session['condition']}")  # ★ ここを追加
+
+    print(f"🧭 Current session condition: {session['condition']}")  # ★ 常に出力
+
+
     products = load_products()
     cart = session.get("cart", [])
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
