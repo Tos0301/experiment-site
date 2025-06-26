@@ -110,6 +110,9 @@ def confirm_id():
 
 @app.route('/index', methods=['GET', 'POST'])
 def index():
+    if 'condition' not in session:
+        session['condition'] = random.choice(['control', 'experiment'])    
+    
     products = load_products()
     cart = session.get("cart", [])
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
