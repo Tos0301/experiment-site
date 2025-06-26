@@ -6,6 +6,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 import base64
 import json
+import random
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -113,14 +114,24 @@ def index():
     cart = session.get("cart", [])
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
 
+    if 'condition' not in session:
+        session['condition'] = random.choice(['experiment', 'control'])
+
     if request.method == 'POST':
-        log_action("商品一覧表示", page="一覧")
-    return render_template('index.html', products=products, cart_count=cart_count)
+        log_action("商品一覧表示", page="一覧", products=[], quantities=[], subtotals=[])
+
+    if session["condition"] == "control":
+        return render_template('control_index.html', products=products, cart_count=cart_count)
+    else:
+        return render_template('index.html', products=products, cart_count=cart_count)
 
 @app.route('/product/<product_id>', methods=['GET', 'POST'])
 def product_detail(product_id):
     products = load_products()
     product = next((p for p in products if p["id"] == product_id), None)
+    if not product:
+        return "商品が見つかりませんでした", 404
+    
     specs_data = load_specs()
     cart = session.get("cart", [])
     cart_count = sum(item['quantity'] for item in cart if isinstance(item, dict) and 'quantity' in item)
@@ -148,8 +159,10 @@ def product_detail(product_id):
     if request.method == 'POST':
         log_action(f"商品詳細表示: {product_id}", page="詳細")
 
+    template_name = 'control_product.html' if session.get("condition") == 'control' else 'product.html' 
+
     return render_template(
-        'product.html',
+        template_name,
         product=product,
         cart_count=cart_count,
         specs=specs_data.get(product_id, "(商品説明がありません)"),
@@ -272,8 +285,10 @@ def cart():
                    quantities=[item["quantity"] for item in cart_items],
                    subtotals=[item["subtotal"] for item in cart_items])
     
+    template_name = 'control_cart.html' if session.get("condition") == 'control' else 'cart.html'
+
     return render_template(
-        'cart.html', 
+        template_name, 
         cart_items=cart_items, 
         total=total, 
         cart_count=cart_count,
@@ -367,7 +382,10 @@ def confirm():
             cart_count += quantity
 
     log_action("購入確認画面表示", page="確認")
-    return render_template("confirm.html", cart_items=cart_items, cart_count=cart_count, total=total)
+
+    template_name = 'control_confirm.html' if session.get("condition") == 'control' else 'confirm.html'
+
+    return render_template(template_name, cart_items=cart_items, cart_count=cart_count, total=total)
 
 
 @app.route('/complete', methods=['POST'])
@@ -420,8 +438,10 @@ def complete():
 
 @app.route('/thanks', methods=['GET', 'POST'])
 def thanks():
+    condition = session.get('condition', 'experiment')
+    template_name = 'control_thanks.html'  if condition == 'control' else 'thanks.html'
     log_action("購入完了", page="完了")
-    return render_template('thanks.html', cart_count=0)
+    return render_template(template_name, cart_count=0)
 
 
 @app.route('/form_embed')

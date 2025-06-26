@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>注文内容の確認</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{
+            margin-right: 280px;
+        }
+        /* ✅ 右固定カラム */
+        .fixed-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 260px;
+            height: 100vh;
+            background-color: #fff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+
+        /* ✅ メインコンテンツ */
+        .main-content {
+            padding: 40px;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .action-buttons button {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- ✅ 右カラム：点数・合計・操作 -->
+<div class="fixed-sidebar">
+    <div>
+        <h5>点数：{{ cart_count }}点</h5>
+        <h5>合計金額：¥{{ total }}</h5>
+    </div>
+    <div class="action-buttons">
+        <form method="POST" action="{{ url_for('complete') }}">
+            <button type="submit" class="btn btn-success mb-2">注文を確定する</button>
+        </form>
+        <form method="POST" action="{{ url_for('back_to_cart') }}">
+            <button type="submit" class="btn btn-outline-secondary">← カートに戻る</button>
+        </form>
+    </div>
+</div>
+
+<!-- ✅ 左・中央エリア：確認内容 -->
+<div class="main-content">
+    <h2 class="mb-4">注文内容の確認</h2>
+
+    <table class="table table-bordered text-center">
+        <thead class="table-light">
+            <tr>
+                <th>商品名</th>
+                <th>カラー</th>
+                <th>サイズ</th>
+                <th>数量</th>
+                <th>小計</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.color or '-' }}</td>
+                    <td>{{ item.size or '-' }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>¥{{ item.subtotal }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="mt-4 text-danger fw-bold">※ 上記の内容で注文を確定してもよろしいですか？</p>
+</div>
+
+</body>
+</html>
+

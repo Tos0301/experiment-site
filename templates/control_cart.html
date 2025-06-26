@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>カートの中身</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin-right: 280px;
+        }
+
+        .fixed-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 260px;
+            height: 100vh;
+            background-color: #fff;
+            border-left: 1px solid #ccc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .product-img {
+            max-width: 100px;
+        }
+
+        .quantity-input {
+            width: 80px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- 右カラム：購入操作 -->
+<div class="fixed-sidebar">
+    <div>
+        <h5>点数：{{ cart_count }}点</h5>
+        <h5>合計金額：¥{{ total }}</h5>
+    </div>
+    <div>
+        <form method="GET" action="{{ url_for('confirm') }}">
+            <button type="submit" class="btn btn-primary w-100 mb-2">購入確認へ進む</button>
+        </form>
+        <form method="POST" action="{{ url_for('back_to_index') }}">
+            <button type="submit" class="btn btn-outline-secondary w-100">← 商品一覧へ戻る</button>
+        </form>
+    </div>
+</div>
+
+<!-- 左・中央メイン -->
+<div class="main-content">
+    <h2 class="mb-4">カートの中身</h2>
+
+    <table class="table table-bordered align-middle">
+        <thead class="table-light text-center">
+            <tr>
+                <th>商品</th>
+                <th>カラー</th>
+                <th>サイズ</th>
+                <th>数量</th>
+                <th>小計</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td class="text-center">
+                    {% if item.image_path %}
+                        <img src="{{ url_for('static', filename=item.image_path) }}" 
+                             alt="{{ item.product.name }}" class="img-fluid product-img">
+                    {% else %}
+                        <div class="text-muted" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                            画像なし
+                        </div>
+                    {% endif %}
+                    <div class="mt-2">{{ item.product.name }}</div>
+                </td>
+
+                <td class="text-center">{{ item.color or '-' }}</td>
+                <td class="text-center">{{ item.size or '-' }}</td>
+
+                <td class="text-center">
+                    <form method="POST" action="{{ url_for('update_cart') }}">
+                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                        <input type="hidden" name="color" value="{{ item.color }}">
+                        <input type="hidden" name="size" value="{{ item.size }}">
+                        <input type="number" name="quantity" value="{{ item.quantity }}"
+                               min="0" onchange="this.form.submit()" class="form-control quantity-input">
+                    </form>
+                </td>
+                
+                <td class="text-center">¥{{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

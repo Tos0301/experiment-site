@@ -27,7 +27,7 @@
         .cart-icon {
             position: fixed;
             bottom: 20px;
-            left: 20px;
+            right: 20px;
             font-size: 24px;
             z-index: 999;
         }
@@ -44,7 +44,9 @@
         }
     </style>
 </head>
+
 <body class="bg-light">
+    {% include 'cart_icon.html' %}
 
 <div class="container mt-5">
     <h2 class="text-center mb-4">商品一覧</h2>
@@ -77,11 +79,13 @@
     </div>
 </div>
 
-{% if session.condition == 'control' %}
-    {% include 'control_cart_icon.html' %}
-{% else %}
-    {% include 'cart_icon.html' %}
-{% endif %}
+<!-- ✅ 右下固定カートアイコン -->
+<a href="{{ url_for('cart') }}" class="cart-icon position-relative text-dark text-decoration-none">
+    <i class="fas fa-shopping-cart fa-2x"></i>
+    {% if cart_count and cart_count > 0 %}
+        <span class="badge">{{ cart_count }}</span>
+    {% endif %}
+</a>
 
 </body>
 </html>
