@@ -68,6 +68,17 @@
         読み込んでいます…
     </iframe>
 
+    <div id="next-section">
+        <hr>
+        <h3>アンケートのご回答ありがとうございました</h3>
+        <p>次のステップに進んでください：</p>
+        <form method="GET" action="https://preference-survey.onrender.com">
+            <input type="hidden" name="participant_id" value="{{ participant_id }}">
+            <input type="hidden" name="condition" value="{{ session['condition'] }}">
+            <button type="submit" class="btn btn-primary">次のサイトへ進む</button>
+        </form>
+    </div>    
+
     <div id="toast">IDをコピーしました！</div>
 
     <script>
@@ -86,7 +97,23 @@
             setTimeout(() => {
                 toast.classList.remove("show");
             }, 2500); // 2.5秒後に消える
-        }
+        }        
+
+        // フォーム送信完了を監視
+        const frame = document.getElementById("form-frame");
+        const nextSection = document.getElementById("next-section");
+
+        const observer = new MutationObserver(() => {
+            const bodyText = frame.contentDocument?.body?.innerText || "";
+            if (bodyText.includes("回答を記録しました")) {
+                nextSection.style.display = "block";
+            }
+        });     
+
+        frame.addEventListener("load", () => {
+            const iframeDoc = frame.contentDocument || frame.contentWindow.document;
+            observer.observe(iframeDoc.body, { childList: true, subtree: true });
+        });
     </script>
 </body>
 </html>

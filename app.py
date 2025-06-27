@@ -454,8 +454,11 @@ def thanks():
 @app.route('/form_embed')
 def form_embed():
     participant_id = session.get("participant_id", "")
+    condition = session.get("condition", "")
     log_action('Googleフォーム埋め込み表示', page='/form_embed')
-    return render_template('googleform.html', participant_id=participant_id)
+    return render_template('googleform.html', 
+                           participant_id=participant_id,
+                           condition=condition)
 
 
 if __name__ == '__main__':
