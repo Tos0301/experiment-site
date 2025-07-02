@@ -71,10 +71,23 @@ def reset_session():
 
 @app.route('/', methods=['GET', 'POST'])
 def start():
+    from_previous = request.args.get('from_previous', '0')  # ← typo修正済み
+    session["from_previous"] = from_previous
+
+    if from_previous == '1':
+        session["participant_id"] = request.args.get('participant_id', '')
+        session["condition"] = request.args.get('condition', '')  # ← ここも修正
+
+    if from_previous == '1' and session.get("participant_id") and session.get("condition"):
+        log_action("前サイトからのスキップ", page="start")
+        return redirect(url_for("index"))
+
     if request.method == 'POST':
         log_action("実験開始", page="start")
         return redirect(url_for("input_id"))
-    return render_template("start.html")
+    
+    return render_template("start.html", from_previous=from_previous)
+
 
 
 @app.route('/input_id')
