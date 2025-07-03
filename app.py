@@ -80,7 +80,7 @@ def start():
 
     if from_previous == '1' and session.get("participant_id") and session.get("condition"):
         log_action("前サイトからのスキップ", page="start")
-        return redirect(url_for("index"))
+        return redirect(url_for("confirm_id"))
 
     if request.method == 'POST':
         log_action("実験開始", page="start")
