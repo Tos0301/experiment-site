@@ -74,7 +74,12 @@
     <div id="next-section">
         <hr>
         <h3>アンケートにご回答いただいた方は、次のステップに進んでください：</h3>
-        <form method="GET" action="https://control-site.onrender.com/" onsubmit="return confirmSubmit();">
+
+   　   {% if session.get("from_previous") == "1" %}
+            <form method="GET" action="{{ url_for('finish') }}" onsubmit="return confirmSubmit();">        
+        {% else %}        
+            <form method="GET" action="https://control-site.onrender.com/" onsubmit="return confirmSubmit();">
+        {% endif %}    
             <input type="hidden" name="from_previous" value="1">
             <input type="hidden" name="participant_id" value="{{ participant_id }}">
             <input type="hidden" name="condition" value="{{ session['condition'] }}">

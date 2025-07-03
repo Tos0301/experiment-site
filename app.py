@@ -473,6 +473,10 @@ def form_embed():
                            participant_id=participant_id,
                            condition=condition)
 
+@app.route("/finish")
+def finish():
+    log_action("実験終了", page="finish")
+    return render_template("finish.html")
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
