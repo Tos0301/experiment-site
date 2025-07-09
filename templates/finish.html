@@ -3,9 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <title>ご協力ありがとうございました</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 30px;
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .reward-box {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #eafaf1;
+            border: 2px dashed #27ae60;
+            border-radius: 8px;
+            font-size: 1.5em;
+            color: #2c3e50;
+            font-weight: bold;
+            user-select: all;
+        }
+
+        p.note {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>実験は終了しました</h1>
-    <p>ご参加いただきありがとうございました。</p>
+    <div class="container">
+        <h1>実験は終了しました</h1>
+        <p>ご参加いただきありがとうございました。</p>
+
+        <div class="reward-box">
+            報酬コード：<span id="reward-code">ABC12345</span>
+        </div>
+        <p class="note">※このコードを控えて、報酬申請フォームに入力してください。</p>
+    </div>
 </body>
 </html>
