@@ -63,7 +63,6 @@
             <tr>
                 <th>商品名</th>
                 <th>カラー</th> 
-                <th>サイズ</th>
                 <th>数量</th>
                 <th>小計</th>
             </tr>
@@ -73,7 +72,6 @@
                 <tr>
                     <td>{{ item.product.name }}</td>
                     <td>{{ item.color or '-' }}</td>  <!-- 追加 -->
-                    <td>{{ item.size or '-' }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>¥{{ item.subtotal }}</td>
                 </tr>

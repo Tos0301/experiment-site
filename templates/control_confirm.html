@@ -14,13 +14,12 @@
             top: 0;
             right: 0;
             width: 260px;
-            height: 100vh;
+            height: auto;
             background-color: #fff;
             border-right: 1px solid #ccc;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             z-index: 1000;
         }
 
@@ -42,10 +41,10 @@
 
 <!-- ✅ 右カラム：点数・合計・操作 -->
 <div class="fixed-sidebar">
-    <div>
-        <h5>点数：{{ cart_count }}点</h5>
-        <h5>合計金額：¥{{ total }}</h5>
-    </div>
+
+    <h5>点数：{{ cart_count }}点</h5>
+    <h5>合計金額：¥{{ total }}</h5>
+    
     <div class="action-buttons">
         <form method="POST" action="{{ url_for('complete') }}">
             <button type="submit" class="btn btn-success mb-2">注文を確定する</button>
@@ -65,7 +64,6 @@
             <tr>
                 <th>商品名</th>
                 <th>カラー</th>
-                <th>サイズ</th>
                 <th>数量</th>
                 <th>小計</th>
             </tr>
@@ -75,7 +73,6 @@
                 <tr>
                     <td>{{ item.product.name }}</td>
                     <td>{{ item.color or '-' }}</td>
-                    <td>{{ item.size or '-' }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>¥{{ item.subtotal }}</td>
                 </tr>

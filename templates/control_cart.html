@@ -14,13 +14,12 @@
             top: 0;
             right: 0;
             width: 260px;
-            height: 100vh;
+            height: auto;
             background-color: #fff;
             border-left: 1px solid #ccc;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             z-index: 1000;
         }
 
@@ -45,11 +44,11 @@
     <div>
         <h5>点数：{{ cart_count }}点</h5>
         <h5>合計金額：¥{{ total }}</h5>
-    </div>
-    <div>
+
         <form method="GET" action="{{ url_for('confirm') }}">
             <button type="submit" class="btn btn-primary w-100 mb-2">購入確認へ進む</button>
         </form>
+        
         <form method="POST" action="{{ url_for('back_to_index') }}">
             <button type="submit" class="btn btn-outline-secondary w-100">← 商品一覧へ戻る</button>
         </form>
@@ -65,7 +64,6 @@
             <tr>
                 <th>商品</th>
                 <th>カラー</th>
-                <th>サイズ</th>
                 <th>数量</th>
                 <th>小計</th>
             </tr>
@@ -92,7 +90,6 @@
                     <form method="POST" action="{{ url_for('update_cart') }}">
                         <input type="hidden" name="product_id" value="{{ item.product.id }}">
                         <input type="hidden" name="color" value="{{ item.color }}">
-                        <input type="hidden" name="size" value="{{ item.size }}">
                         <input type="number" name="quantity" value="{{ item.quantity }}"
                                min="0" onchange="this.form.submit()" class="form-control quantity-input">
                     </form>
