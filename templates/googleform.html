@@ -73,7 +73,7 @@
 
     <div id="next-section">
         <hr>
-        <h3>アンケートにご回答いただいた方は、次のステップに進んでください：</h3>
+        <h3>質問項目ににご回答いただいた方は、次のステップに進んでください：</h3>
 
    　   {% if session.get("from_previous") == "1" %}
             <form method="GET" action="{{ url_for('finish') }}" onsubmit="return confirmSubmit();">        
@@ -109,7 +109,7 @@
         }
 
         function confirmSubmit() {
-            return confirm("アンケートの回答は完了していますか？\n未回答のまま進むとデータが記録されません。");
+            return confirm("質問項目への回答は完了していますか？\n未回答のまま進むとデータが記録されません。");
         }
 
     </script>

@@ -23,7 +23,10 @@
 <body>
     <div class="form-container">
         <h2 class="mb-4 text-center">実験用IDの作成</h2>
-        <p class="mb-4 text-center">まず、実験に用いるIDを作成します。次の指示に従って入力してください。</p>
+        <p class="mb-4 text-center">まず、実験に用いるIDを作成します。<br>
+            次の指示に従って入力してください。<br>
+            ※このIDは、商品を選ぶ課題の記録と、商品についての質問項目への回答の記録を後から合致させるために使用します。
+        </p>
 
         <form method="POST" action="{{ url_for('set_participant_id') }}">
             <div class="mb-3">
@@ -38,7 +41,7 @@
                 <label for="suffix" class="form-label">任意の2桁の数字</label>
                 <input type="text" class="form-control" id="suffix" name="suffix" pattern="\d{2}" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">IDを作成して次へ </button>
+            <button type="submit" class="btn btn-primary w-100">IDを作成して次に進む </button>
         </form>
     </div>
 </body>

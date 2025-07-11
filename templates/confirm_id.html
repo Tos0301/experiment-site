@@ -32,7 +32,7 @@
     <div class="container bg-white p-5 shadow rounded">
         <h2 class="mb-4">IDの確認と実験概要</h2>
 
-        <p>あなたのIDはこちらです。質問紙でも用いますので、わかるようにメモをとっておいてください。</p>
+        <p>あなたのIDはこちらです。IDを修正したい場合は下の「IDを再設定する」のボタンから前のページに戻ることができます。</p>
         <div class="id-box">{{ participant_id }}</div>
 
         <hr class="my-4">
@@ -42,19 +42,19 @@
             以下の文章を読んで課題に進んでください。<br>
             <br>
             　あなたは、オンラインショッピングサイトを利用してマグカップを購入しようと考えています。<br>
-            次の画面はオンラインショッピングの検索欄で「マグカップ」と検索した結果の画面です。<br>
-            次に提示される商品の中から、購入したいと思ったものを選び、購入確定まで進んでください。<br>
             <br>
-            商品は購入しないことも可能です。<br>
-            購入したいと思った商品がなかった場合は、カートに何も入れない状態で購入完了まで進んでください。<br>
+            次の画面はオンラインショッピングの検索欄で「マグカップ」と検索した結果の画面です。<br>
+            提示される商品の中から、購入したいと思ったものを選び、購入確定まで進んでください。<br>
+            <br>
+            商品は購入しないことも可能です。購入したいと思った商品がなかった場合は、カートに何も入れない状態で購入完了まで進んでください。<br>
 
 
-            購入確定後、5分程度のGoogle Formに回答していただきます。
+            購入確定後、5分程度かかる質問紙に回答していただきます。
         </p>
 
         <div class="d-flex flex-column align-items-center mt-4">
             <form method="POST" action="{{ url_for('index') }}" class="w-100" style="max-width: 300px;">
-                <button type="submit" class="btn btn-primary w-100 mb-2">実験を開始する</button>
+                <button type="submit" class="btn btn-primary w-100 mb-2">課題を開始する</button>
             </form>
 
             <form method="GET" action="{{ url_for('input_id') }}" class="w-100" style="max-width: 300px;">
