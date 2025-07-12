@@ -58,7 +58,7 @@
     </style>
 </head>
 <body>
-    <h1>アンケートにご協力ください</h1>
+    <h1>質問項目にご回答ください</h1>
 
     <p>以下の「参加者ID」をフォームの最初の質問欄に<strong>コピー＆ペースト</strong>してください：</p>
 
@@ -73,7 +73,7 @@
 
     <div id="next-section">
         <hr>
-        <h3>質問項目ににご回答いただいた方は、次のステップに進んでください：</h3>
+        <h3>質問項目ににご回答いただいた方は、次のステップにお進みください：</h3>
 
    　   {% if session.get("from_previous") == "1" %}
             <form method="GET" action="{{ url_for('finish') }}" onsubmit="return confirmSubmit();">        
@@ -83,7 +83,7 @@
             <input type="hidden" name="from_previous" value="1">
             <input type="hidden" name="participant_id" value="{{ participant_id }}">
             <input type="hidden" name="condition" value="{{ session['condition'] }}">
-            <button type="submit" class="btn btn-primary">次のサイトへ進む</button>
+            <button type="submit" class="btn btn-primary">次のステップへ進む</button>
         </form>
 
     </div>
