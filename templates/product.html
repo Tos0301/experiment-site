@@ -157,7 +157,7 @@
         <p style="white-space: pre-line;">{{ product.detail | replace('\\n', '\n') }}</p>
 
         {% if product.image_source %}
-        <p class="text-muted mt-3" style="font-size: 0.8em;">
+        <p class="text-end mt-3" style="font-size: 0.8em;">
             画像引用元：<a href="{{ product.image_credit_url }}" target="_blank">{{ product.image_credit_url }}</a>
         </p>
         {% endif %}
