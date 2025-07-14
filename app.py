@@ -201,7 +201,7 @@ def product_detail(product_id):
         cart_count=cart_count,
         specs=specs_data.get(product_id, "(商品説明がありません)"),
         image_list=image_list,
-        base_prefix=base_prefix  # JSに渡す
+        base_prefix=base_prefix,  # JSに渡す
         image_source=product.get("image_source", "")  # ← 追加
 
     )
