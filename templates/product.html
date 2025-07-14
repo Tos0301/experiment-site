@@ -148,13 +148,6 @@
             <h4 class="text-muted">¥{{ product.price }}</h4>
             <h5 class="mt-4">商品スペック</h5>
             <p style="white-space: pre-line;">{{ specs }}</p>
-
-            {% if product.image_source %}
-            <p class="text-muted mt-3" style="font-size: 0.8rem; pointer-events: none;">
-                画像引用元：{{ product.image_source }}
-            </p>
-            {% endif %}
-
         </div>
     </div>
 
@@ -162,6 +155,12 @@
     <div class="product-detail-section bg-light border rounded p-4 mt-4">
         <h5>商品詳細</h5>
         <p style="white-space: pre-line;">{{ product.detail | replace('\\n', '\n') }}</p>
+
+        {% if product.image_source %}
+        <p class="text-muted mt-3" style="font-size: 0.8em;">
+            画像引用元：<a href="{{ product.image_credit_url }}" target="_blank">{{ product.image_credit_url }}</a>
+        </p>
+        {% endif %}
     </div>
     {% endif %}
 </div>
