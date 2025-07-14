@@ -20,7 +20,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: start;
+            justify-content: space-between;
             z-index: 1000;
         }
 
@@ -42,9 +42,10 @@
 
 <!-- ✅ 右カラム：点数・合計・操作 -->
 <div class="fixed-sidebar">
-
-    <h5>点数：{{ cart_count }}点</h5>
-    <h5>合計金額：¥{{ total }}</h5>
+    <div class="top-section"
+        <h5>点数：{{ cart_count }}点</h5>
+        <h5>合計金額：¥{{ total }}</h5>
+    </div>
     
     <div class="action-buttons">
         <form method="POST" action="{{ url_for('complete') }}">

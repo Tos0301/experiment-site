@@ -20,7 +20,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: start;
+            justify-content: space-between;
             z-index: 1000;
         }
 
@@ -42,10 +42,12 @@
 
 <!-- 右カラム：購入操作 -->
 <div class="fixed-sidebar">
-    <div>
+    <div class="sidebar-top">
         <h5>点数：{{ cart_count }}点</h5>
         <h5>合計金額：¥{{ total }}</h5>
+    </div>
 
+    <div class="sidebar-bottom">
         <form method="GET" action="{{ url_for('confirm') }}">
             <button type="submit" class="btn btn-primary w-100 mb-2">購入確認へ進む</button>
         </form>
