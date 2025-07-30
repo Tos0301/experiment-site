@@ -27,6 +27,7 @@ worksheet = gc.open_by_key(spreadsheet_id).sheet1
 def log_action(action, page="", total_price=0, products=None, quantities=None, subtotals=None, colors=None, sizes=None):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     participant_id = session.get("participant_id", "")
+    condition = session.get("condition", "")
     products = products or []
     quantities = quantities or []
     subtotals = subtotals or []
@@ -34,7 +35,7 @@ def log_action(action, page="", total_price=0, products=None, quantities=None, s
     sizes = sizes or []
     
     worksheet.append_row([
-        now, participant_id, action, total_price,
+        now, participant_id, condition, action, total_price,
         ",".join(products),
         ",".join(map(str, quantities)),
         ",".join(map(str, subtotals)),
