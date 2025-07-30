@@ -486,10 +486,20 @@ def thanks():
 def form_embed():
     participant_id = session.get("participant_id", "")
     condition = session.get("condition", "")
+    from_previous = request.args.get("from_previous", session.get("from_previous", ""))
+
+    if from_previous:
+        session["from_previous"] = from_previous
+
     log_action('Googleフォーム埋め込み表示', page='/form_embed')
-    return render_template('googleform.html', 
-                           participant_id=participant_id,
-                           condition=condition)
+
+
+    return render_template(
+        'googleform.html', 
+        participant_id=participant_id,
+        condition=condition,
+        from_previous=from_previous
+    )
 
 @app.route("/finish")
 def finish():
