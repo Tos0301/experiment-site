@@ -22,28 +22,19 @@
 </head>
 <body>
     <div class="form-container">
-        <h2 class="mb-4 text-center">実験用IDの作成</h2>
-        <p class="mb-4 text-center">まず、実験に用いるIDを作成します。<br>
-            次の指示に従って入力してください。<br>
+        <h2 class="mb-4 text-center">参加者IDの入力</h2>
+        <p class="mb-4 text-center">
+            株式会社クロス・マーケティングより配布されたIDを入力してください。<br>
             ※このIDは、商品を選ぶ課題の記録と、商品についての質問項目への回答の記録を後から一致させるために使用します。
         </p>
 
         <form method="POST" action="{{ url_for('set_participant_id') }}">
             <div class="mb-3">
-                <label for="prefix" class="form-label">アルファベット1文字（大文字 例: A）</label>
-                <input type="text" class="form-control" id="prefix" name="prefix" pattern="[A-Z]" maxlength="1" required>
+                <label for="participant_id" class="form-label">参加者ID</label>
+                <input type="text" class="form-control" id="participant_id" name="participant_id" required>
             </div>
-            <div class="mb-3">
-                <label for="birthdate" class="form-label">誕生日（月日4桁 例: 0529）</label>
-                <input type="text" class="form-control" id="birthdate" name="birthdate" pattern="\d{4}" required>
-            </div>
-            <div class="mb-3">
-                <label for="suffix" class="form-label">任意の2桁の数字</label>
-                <input type="text" class="form-control" id="suffix" name="suffix" pattern="\d{2}" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">IDを作成して次に進む </button>
+            <button type="submit" class="btn btn-primary w-100">次に進む</button>
         </form>
     </div>
 </body>
 </html>
-

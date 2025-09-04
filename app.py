@@ -7,6 +7,8 @@ from google.oauth2.service_account import Credentials
 import base64
 import json
 import random
+import re
+import unicodedata
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -23,6 +25,22 @@ service_info = json.loads(decoded_json)
 credentials = Credentials.from_service_account_info(service_info, scopes=scopes)
 gc = gspread.authorize(credentials)
 worksheet = gc.open_by_key(spreadsheet_id).sheet1
+
+ID_PATTERN = re.compile(r"^[A-Za-z0-9\-_.]{4,32}$")
+
+PROTECTED_ENDPOINTS = {
+    "index", "product_detail", "go_product", "go_cart",
+    "add_to_cart", "cart", "update_cart", "go_confirm",
+    "confirm", "complete", "thanks", "form_embed",
+    "back_to_index", "back_to_cart", "cart_count"
+}
+
+def normalize_id(s: str) -> str:
+    if not s:
+        return ""
+    # 前後空白除去 & 全角→半角（英数・記号）
+    s = unicodedata.normalize("NFKC", s.strip())
+    return s
 
 def log_action(action, page="", total_price=0, products=None, quantities=None, subtotals=None, colors=None, sizes=None):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -96,22 +114,54 @@ def input_id():
     return render_template('input_id.html')
 
 
+#@app.route('/set_id', methods=['POST'])
+#def set_participant_id():
+#    prefix = request.form.get("prefix", "").upper()
+#    birthdate = request.form.get("birthdate", "")
+#    suffix = request.form.get("suffix", "")
+    
+    # if not (prefix and birthdate and suffix):
+    #     return redirect(url_for("input_id"))
+
+    # participant_id = f"{prefix}{birthdate}{suffix}"
+    # session["participant_id"] = participant_id
+
+    # # 任意：ログを記録
+    # log_action("ID入力", page="ID")  # log_action関数があれば
+
+    # return redirect(url_for("confirm_id"))
+
+@app.before_request
+def require_participant_id():
+    # ID入力や開始画面、静的ファイルは除外
+    if request.endpoint in { "start", "input_id", "set_participant_id", "reset_session", "static", "confirm_id" }:
+        return
+    # 前サイトスキップ経路（start→confirm_id）も考慮して、confirm_idまでは許容
+    if request.endpoint in PROTECTED_ENDPOINTS and not session.get("participant_id"):
+        return redirect(url_for("input_id"))
+    
 @app.route('/set_id', methods=['POST'])
 def set_participant_id():
-    prefix = request.form.get("prefix", "").upper()
-    birthdate = request.form.get("birthdate", "")
-    suffix = request.form.get("suffix", "")
-    
-    if not (prefix and birthdate and suffix):
+    raw = request.form.get("participant_id", "")
+    participant_id = normalize_id(raw)
+
+    # 空欄チェック
+    if not participant_id:
+        # 必要に応じて flash メッセージを出すならここで
         return redirect(url_for("input_id"))
 
-    participant_id = f"{prefix}{birthdate}{suffix}"
+    # 形式チェック（必要なければ外してOK）
+    if not ID_PATTERN.fullmatch(participant_id):
+        # 必要に応じて flash メッセージを出すならここで
+        return redirect(url_for("input_id"))
+
     session["participant_id"] = participant_id
 
-    # 任意：ログを記録
-    log_action("ID入力", page="ID")  # log_action関数があれば
+    # ログ（従来どおり）
+    log_action("ID入力", page="ID")
 
     return redirect(url_for("confirm_id"))
+
 
 @app.route('/confirm_id', methods=['GET', 'POST'])
 def confirm_id():
