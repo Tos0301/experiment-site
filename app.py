@@ -26,7 +26,7 @@ credentials = Credentials.from_service_account_info(service_info, scopes=scopes)
 gc = gspread.authorize(credentials)
 worksheet = gc.open_by_key(spreadsheet_id).sheet1
 
-ID_PATTERN = re.compile(r"^[A-Za-z0-9\-_.]{4,32}$")
+ID_PATTERN = re.compile(r"^[A-Za-z0-9\-_.]{12}}$")
 
 PROTECTED_ENDPOINTS = {
     "index", "product_detail", "go_product", "go_cart",
