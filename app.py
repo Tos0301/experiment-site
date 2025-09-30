@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 import csv, os
 import pandas as pd
 import datetime
@@ -152,7 +152,7 @@ def set_participant_id():
 
     # 形式チェック（必要なければ外してOK）
     if not ID_PATTERN.fullmatch(participant_id):
-        # 必要に応じて flash メッセージを出すならここで
+        flash("参加者IDの形式が正しくありません。（半角英数字のみ使用可能です）", "danger")
         return redirect(url_for("input_id"))
 
     session["participant_id"] = participant_id

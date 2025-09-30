@@ -28,6 +28,21 @@
             ※このIDは、商品を選ぶ課題の記録と、商品についての質問項目への回答の記録を後から一致させるために使用します。
         </p>
 
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mb-3">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        
+        
         <form method="POST" action="{{ url_for('set_participant_id') }}">
             <div class="mb-3">
                 <label for="participant_id" class="form-label">参加者ID</label>
