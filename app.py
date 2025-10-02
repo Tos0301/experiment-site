@@ -152,7 +152,7 @@ def set_participant_id():
 
     # 形式チェック（必要なければ外してOK）
     if not ID_PATTERN.fullmatch(participant_id):
-        flash("参加者IDの形式が正しくありません。（半角英数字のみ使用可能です）", "danger")
+        flash("参加者IDの文字数または形式が正しくありません。（12文字・半角英数字のみ使用可能です）", "danger")
         return redirect(url_for("input_id"))
 
     session["participant_id"] = participant_id
