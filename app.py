@@ -166,8 +166,14 @@ def set_participant_id():
 @app.route('/confirm_id', methods=['GET', 'POST'])
 def confirm_id():
     participant_id = session.get("participant_id", "")
+    condition = request.args.get("condition", "")
+    if participant_id and condition:
+        session["participant_id"] = participant_id
+        session["condition"] = condition
+   
     if not participant_id:
         return redirect(url_for("input_id"))
+    
     return render_template("confirm_id.html", participant_id=participant_id)
 
 
