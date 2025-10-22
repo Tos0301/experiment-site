@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+from urllib.parse import urlencode
 import csv, os
 import pandas as pd
 import datetime
@@ -9,6 +10,13 @@ import json
 import random
 import re
 import unicodedata
+import time
+
+WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "12characterPSKey")
+GOOGLE_FORM_BASE_URL = os.getenv("GOOGLE_FORM_BASE_URL", "")  # 例: https://docs.google.com/forms/d/e/.../viewform
+DEST_ROUTE_AFTER_FORM = os.getenv("DEST_ROUTE_AFTER_FORM", "finish")  # 回答後に進めたいルート名
+COUNTERPART_BASE_URL = os.getenv("COUNTERPART_BASE_URL", "https://control-site.onrender.com")
+
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -34,6 +42,14 @@ PROTECTED_ENDPOINTS = {
     "confirm", "complete", "thanks", "form_embed",
     "back_to_index", "back_to_cart", "cart_count"
 }
+
+form_status = {}
+
+def mark_form_submitted(pid: str):
+    form_status[pid] = {"done": True, "ts": int(time.time())}
+
+def is_form_submitted(pid: str) -> bool:
+    return bool(form_status.get(pid, {}).get("done"))
 
 def normalize_id(s: str) -> str:
     if not s:
@@ -134,7 +150,7 @@ def input_id():
 @app.before_request
 def require_participant_id():
     # ID入力や開始画面、静的ファイルは除外
-    if request.endpoint in { "start", "input_id", "set_participant_id", "reset_session", "static", "confirm_id" }:
+    if request.endpoint in { "start", "input_id", "set_participant_id", "reset_session", "static", "confirm_id", "notify_form_submit", "form_status_api" }:
         return
     # 前サイトスキップ経路（start→confirm_id）も考慮して、confirm_idまでは許容
     if request.endpoint in PROTECTED_ENDPOINTS and not session.get("participant_id"):
@@ -556,6 +572,70 @@ def form_embed():
         condition=condition,
         from_previous=from_previous
     )
+
+@app.post("/notify_form_submit")
+def notify_form_submit():
+    # Google Apps Script からの通知（ヘッダで簡易保護）
+    secret = request.headers.get("X-Webhook-Secret")
+    if secret != WEBHOOK_SECRET:
+        return "forbidden", 403
+
+    pid = request.form.get("pid") if request.form else None
+    if not pid and request.is_json:
+        data = request.get_json(silent=True) or {}
+        pid = data.get("pid")
+
+    if not pid:
+        print("[WEBHOOK] missing pid")
+        return "bad request: missing pid", 400
+
+    mark_form_submitted(pid)
+    return "ok", 200
+
+
+@app.get("/form_status/<pid>")
+def form_status_api(pid):
+    return jsonify({"done": is_form_submitted(pid)})
+
+@app.get("/guard_to_next")
+def guard_to_next():
+    """
+    提出済みか最終確認 → 行き先を分岐
+      - まだ相手サイトに入っていない（from_previous != "1"）: 相手サイトに必要情報を付けてリダイレクト
+      - すでに相手サイトから来ている（from_previous == "1"）: ローカルの finish へ
+    """
+    # 1) 提出済みチェック
+    pid = session.get("participant_id") or request.args.get("pid")
+    if not pid:
+        return "no participant_id", 400
+    if not is_form_submitted(pid):
+        return "form not submitted", 403
+
+    # 2) どちらから来たか（このサイトが1サイト目か2サイト目か）
+    from_previous = session.get("from_previous", "0")
+
+    # 3) 2サイト目（前サイトから渡ってきた後）ならローカルの次ステップへ
+    if from_previous == "1":
+        # 例: finish
+        return redirect(url_for(DEST_ROUTE_AFTER_FORM))
+
+    # 4) まだ 1サイト目：相手サイトに ID/条件/フラグ を付けて送る
+    if COUNTERPART_BASE_URL:
+        qs = urlencode({
+            "from_previous": "1",
+            "participant_id": session.get("participant_id", ""),
+            "condition": session.get("condition", "")
+        })
+        # トップ（/）に流し、相手サイトの start() がパラメータをセッションへ入れる想定
+        target_url = COUNTERPART_BASE_URL.rstrip("/") + "/?" + qs
+        # 任意: デバッグログ
+        print(f"[GUARD] redirect to counterpart: {target_url}")
+        return redirect(target_url)
+
+    # 5) 相手サイトURLが未設定ならフォールバック（ローカルの finish へ）
+    return redirect(url_for(DEST_ROUTE_AFTER_FORM))
+# ---- 追加ここまで ----
+
 
 @app.route("/finish")
 def finish():
