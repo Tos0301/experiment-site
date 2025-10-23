@@ -16,7 +16,9 @@ WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "12characterPSKey")
 GOOGLE_FORM_BASE_URL = os.getenv("GOOGLE_FORM_BASE_URL", "")  # 例: https://docs.google.com/forms/d/e/.../viewform
 DEST_ROUTE_AFTER_FORM = os.getenv("DEST_ROUTE_AFTER_FORM", "finish")  # 回答後に進めたいルート名
 COUNTERPART_BASE_URL = os.getenv("COUNTERPART_BASE_URL", "https://control-site.onrender.com")
-
+FORM1_CODE = os.getenv("FORM1_CODE", "F1_SECRET_CODE")
+FORM2_CODE = os.getenv("FORM2_CODE", "F2_SECRET_CODE")
+WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "12characterPSKey")
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -45,11 +47,19 @@ PROTECTED_ENDPOINTS = {
 
 form_status = {}
 
-def mark_form_submitted(pid: str):
-    form_status[pid] = {"done": True, "ts": int(time.time())}
+def mark_form_done(pid: str, form_id: str):
+    rec = form_status.setdefault(pid, {"form1": False, "form2": False})
+    if form_id in ("form1", "form2"):
+        rec[form_id] = True
+
+def is_form_done(pid: str, form_id: str) -> bool:
+    return bool(form_status.get(pid, {}).get(form_id))
+
 
 def is_form_submitted(pid: str) -> bool:
-    return bool(form_status.get(pid, {}).get("done"))
+    """互換用: どちらか1つでも完了していればTrue"""
+    rec = form_status.get(pid, {})
+    return rec.get("form1", False) or rec.get("form2", False)
 
 def normalize_id(s: str) -> str:
     if not s:
@@ -557,45 +567,60 @@ def thanks():
 @app.route('/form_embed')
 def form_embed():
     participant_id = session.get("participant_id", "")
-    condition = session.get("condition", "")
-    from_previous = request.args.get("from_previous", session.get("from_previous", ""))
+    from_previous  = request.args.get("from_previous", session.get("from_previous", "0"))
+    # 入場順で期待フォームを決める（常に F1 → F2 の順）
+    expect_form = "form2" if from_previous == "1" else "form1"
 
-    if from_previous:
-        session["from_previous"] = from_previous
-
-    log_action('Googleフォーム埋め込み表示', page='/form_embed')
-
-
+    log_action('Googleフォーム埋め込み表示', page=f'/form_embed:{expect_form}')
     return render_template(
-        'googleform.html', 
+        'googleform.html',
         participant_id=participant_id,
-        condition=condition,
-        from_previous=from_previous
+        from_previous=from_previous,
+        expect_form=expect_form,   # ★ これをテンプレに渡す
+        # 既存：
+        google_form_url=GOOGLE_FORM_BASE_URL,
     )
+
 
 @app.post("/notify_form_submit")
 def notify_form_submit():
-    # Google Apps Script からの通知（ヘッダで簡易保護）
-    secret = request.headers.get("X-Webhook-Secret")
-    if secret != WEBHOOK_SECRET:
+    # Secret
+    if request.headers.get("X-Webhook-Secret") != WEBHOOK_SECRET:
         return "forbidden", 403
 
-    pid = request.form.get("pid") if request.form else None
-    if not pid and request.is_json:
+    # 受領
+    pid    = request.form.get("pid")
+    form_id= request.form.get("form_id")    # "form1" or "form2"
+    code   = request.form.get("code")       # フォーム別の完了コード
+
+    if not pid or not form_id or not code:
         data = request.get_json(silent=True) or {}
-        pid = data.get("pid")
+        pid     = pid     or data.get("pid")
+        form_id = form_id or data.get("form_id")
+        code    = code    or data.get("code")
 
-    if not pid:
-        print("[WEBHOOK] missing pid")
-        return "bad request: missing pid", 400
+    if not pid or not form_id or not code:
+        return "bad request", 400
 
-    mark_form_submitted(pid)
+    # コード検証（フォーム別）
+    expected = FORM1_CODE if form_id == "form1" else FORM2_CODE if form_id == "form2" else None
+    if expected is None or code != expected:
+        return "ignored: bad form_id or code", 202
+
+    # 正しい完了 ⇒ 該当フォームだけ完了扱い
+    mark_form_done(pid, form_id)
     return "ok", 200
 
 
 @app.get("/form_status/<pid>")
 def form_status_api(pid):
-    return jsonify({"done": is_form_submitted(pid)})
+    expect = request.args.get("expect")  # "form1" または "form2"
+    if expect in ("form1", "form2"):
+        return jsonify({"done": is_form_done(pid, expect)})
+    # 後方互換：未指定なら“どちらか片方でも完了”を返す（使わない運用推奨）
+    done_any = is_form_done(pid, "form1") or is_form_done(pid, "form2")
+    return jsonify({"done": done_any})
+
 
 @app.get("/guard_to_next")
 def guard_to_next():

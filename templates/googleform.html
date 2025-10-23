@@ -111,42 +111,28 @@
 
      // ---- 回答完了ポーリング（絶対URLで） ----
     document.addEventListener("DOMContentLoaded", () => {
-        const pid = "{{ participant_id }}";
-        const baseUrl = window.location.origin;  // 例: https://control-site.onrender.com
-        let popped = false;
+      const pid = "{{ participant_id }}";
+      const expect = "{{ expect_form }}";   // "form1" or "form2"
+      const baseUrl = window.location.origin;  // 例: https://control-site.onrender.com
+      let popped = false;
 
-        async function pollSubmit() {
+      async function pollSubmit() {
         try {
-            const res = await fetch(`${baseUrl}/form_status/${encodeURIComponent(pid)}`, { cache: "no-store" });
-            // 念のため Content-Type を見てHTML誤応答を検知
-            const ct = res.headers.get("content-type") || "";
-            if (!ct.includes("application/json")) throw new Error("non-json response");
-            const data = await res.json();
-            console.log("Form status:", data);
-
-            if (data.done && !popped) {
+          const res = await fetch(`${baseUrl}/form_status/${encodeURIComponent(pid)}?expect=${encodeURIComponent(expect)}`, {cache: "no-store"});
+          const ct = res.headers.get("content-type") || "";
+          if (!ct.includes("application/json")) throw new Error("non-json");
+          const data = await res.json();
+          if (data.done && !popped) {
             popped = true;
-
-            // モーダル表示
             const modalEl = document.getElementById('afterSubmitModal');
-            if (modalEl) {
-                const modal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
-                modal.show();
-            }
-
-            // 予備導線を表示
-            const fallback = document.getElementById('next-section');
-            if (fallback) fallback.style.display = 'block';
-
-            return; // ポーリング停止
-            }
-        } catch (e) {
-            console.warn("Polling error:", e);
-        }
+            if (modalEl) new bootstrap.Modal(modalEl, {backdrop:'static',keyboard:false}).show();
+            document.getElementById('next-section')?.style && (document.getElementById('next-section').style.display = 'block');
+            return;
+          }
+        } catch(e) { console.warn(e); }
         setTimeout(pollSubmit, 3000);
-        }
-
-        pollSubmit();
+      }
+      pollSubmit();
     });
     </script>
 </body>
