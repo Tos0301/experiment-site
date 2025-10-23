@@ -18,7 +18,6 @@ DEST_ROUTE_AFTER_FORM = os.getenv("DEST_ROUTE_AFTER_FORM", "finish")  # 回答�
 COUNTERPART_BASE_URL = os.getenv("COUNTERPART_BASE_URL", "https://control-site.onrender.com")
 FORM1_CODE = os.getenv("FORM1_CODE", "F1_SECRET_CODE")
 FORM2_CODE = os.getenv("FORM2_CODE", "F2_SECRET_CODE")
-WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "12characterPSKey")
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -614,52 +613,44 @@ def notify_form_submit():
 
 @app.get("/form_status/<pid>")
 def form_status_api(pid):
-    expect = request.args.get("expect")  # "form1" または "form2"
-    if expect in ("form1", "form2"):
-        return jsonify({"done": is_form_done(pid, expect)})
-    # 後方互換：未指定なら“どちらか片方でも完了”を返す（使わない運用推奨）
-    done_any = is_form_done(pid, "form1") or is_form_done(pid, "form2")
-    return jsonify({"done": done_any})
+    expect = request.args.get("expect")
+    if expect not in ("form1", "form2"):
+        return jsonify({"error": "expect param required"}), 400
+    return jsonify({"done": is_form_done(pid, expect)})
+
 
 
 @app.get("/guard_to_next")
 def guard_to_next():
-    """
-    提出済みか最終確認 → 行き先を分岐
-      - まだ相手サイトに入っていない（from_previous != "1"）: 相手サイトに必要情報を付けてリダイレクト
-      - すでに相手サイトから来ている（from_previous == "1"）: ローカルの finish へ
-    """
-    # 1) 提出済みチェック
     pid = session.get("participant_id") or request.args.get("pid")
     if not pid:
         return "no participant_id", 400
-    if not is_form_submitted(pid):
+
+    # ★ どちらのサイト段階かで「期待フォーム」を決定
+    from_previous = session.get("from_previous", "0")
+    expected = "form2" if from_previous == "1" else "form1"
+
+    # ★ 期待するフォームが完了しているかだけをチェック
+    if not is_form_done(pid, expected):
         return "form not submitted", 403
 
-    # 2) どちらから来たか（このサイトが1サイト目か2サイト目か）
-    from_previous = session.get("from_previous", "0")
-
-    # 3) 2サイト目（前サイトから渡ってきた後）ならローカルの次ステップへ
+    # 2サイト目ならローカルのfinishへ
     if from_previous == "1":
-        # 例: finish
         return redirect(url_for(DEST_ROUTE_AFTER_FORM))
 
-    # 4) まだ 1サイト目：相手サイトに ID/条件/フラグ を付けて送る
+    # 1サイト目なら相手サイトへ
     if COUNTERPART_BASE_URL:
         qs = urlencode({
             "from_previous": "1",
             "participant_id": session.get("participant_id", ""),
             "condition": session.get("condition", "")
         })
-        # トップ（/）に流し、相手サイトの start() がパラメータをセッションへ入れる想定
         target_url = COUNTERPART_BASE_URL.rstrip("/") + "/?" + qs
-        # 任意: デバッグログ
         print(f"[GUARD] redirect to counterpart: {target_url}")
         return redirect(target_url)
 
-    # 5) 相手サイトURLが未設定ならフォールバック（ローカルの finish へ）
     return redirect(url_for(DEST_ROUTE_AFTER_FORM))
-# ---- 追加ここまで ----
+
 
 
 @app.route("/finish")
