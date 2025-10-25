@@ -39,6 +39,20 @@
             letter-spacing: 2px;
         }
 
+        .copy-wrap { display:flex; gap:12px; align-items:center; justify-content:center; margin-top: 12px; }
+        .copy-btn {
+            padding: 10px 14px; border: 0; border-radius: 8px; font-size: 0.95em;
+            background: #27ae60; color:#fff; cursor:pointer; transition: opacity .2s ease;
+        }
+        .copy-btn:hover { opacity: .9; }
+         /* トースト */
+        #copyToast {
+            position: fixed; right: 24px; bottom: 24px; background:#333; color:#fff;
+            padding: 10px 14px; border-radius: 8px; opacity:0; visibility:hidden;
+            transition: opacity .25s ease, visibility .25s ease; z-index: 1000;
+        }
+        #copyToast.show { opacity:1; visibility:visible; }
+
         p.note {
             font-size: 0.9em;
             color: #666;
@@ -55,9 +69,16 @@
         <p>ご回答いただきました内容と参加者様のIDはすでに保存されております。<br>
         以下の報酬コードを控え、クラウドワークスのメッセージ機能から送信してください。</p>
 
-        <div class="reward-box">
-            {{ reward_code }}
+
+        <div class="copy-wrap">
+            <div class="reward-box" id="rewardCode" title="クリックで選択">{{ reward_code }}</div>
+            <button class="copy-btn" type="button" onclick="copyReward()">コピー</button>
         </div>
+
+        <div id="copyToast" role="status" aria-live="polite">
+            報酬をコピーしました。クラウドワークスの入力欄に貼り付けてください。
+        </div>
+
         <p class="note">※このコードは謝礼受け取り時に必要です。スクリーンショットなどで保管してください。</p>
 
         <p>本研究の結果は以下のGoogleドライブ内で公開いたします。公開の時期は2026年2月ごろを予定しております。<br>
@@ -68,5 +89,52 @@
 
 
     </div>
+    <script>
+        function copyReward() {
+            const el = document.getElementById('rewardCode');
+            if (!el) return;
+            const code = (el.innerText || el.textContent || '').trim();
+            if (!code) return;
+
+            // Clipboard API（推奨）→ フォールバックの順で試行
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(code).then(showCopiedToast).catch(fallbackCopy);
+            } else {
+              fallbackCopy();
+            }
+
+        function fallbackCopy() {
+            const ta = document.createElement('textarea');
+          ta.value = code;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'absolute';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); } catch(e) {}
+          document.body.removeChild(ta);
+          showCopiedToast();
+        }
+    }
+
+    function showCopiedToast() {
+        const t = document.getElementById('copyToast');
+        if (!t) return;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    // クリックでコードを選択（視覚的フィードバック用・任意）
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'rewardCode') {
+          const range = document.createRange();
+          range.selectNodeContents(e.target);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      });
+    </script>
+
 </body>
 </html>
