@@ -168,7 +168,6 @@ def get_or_create_reward_code(pid: str, condition: str, site_label: str) -> str:
     return code
 
 
-
 @app.route('/reset_session')
 def reset_session():
     session.clear()
