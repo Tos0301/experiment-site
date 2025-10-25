@@ -5,12 +5,16 @@ import pandas as pd
 import datetime
 import gspread
 from google.oauth2.service_account import Credentials
+from gspread.exceptions import WorksheetNotFound
 import base64
 import json
 import random
 import re
 import unicodedata
 import time
+import secrets
+import string
+
 
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "12characterPSKey")
 GOOGLE_FORM_BASE_URL = os.getenv("GOOGLE_FORM_BASE_URL", "")  # 例: https://docs.google.com/forms/d/e/.../viewform
@@ -34,6 +38,14 @@ service_info = json.loads(decoded_json)
 credentials = Credentials.from_service_account_info(service_info, scopes=scopes)
 gc = gspread.authorize(credentials)
 worksheet = gc.open_by_key(spreadsheet_id).sheet1
+
+try:
+    rewards_ws = gc.open_by_key(spreadsheet_id).worksheet('rewards')
+except WorksheetNotFound:
+    sh = gc.open_by_key(spreadsheet_id)
+    rewards_ws = sh.add_worksheet(title='rewards', rows=1000, cols=10)
+    rewards_ws.append_row(["timestamp", "participant_id", "condition", "site", "reward_code"])
+
 
 ID_PATTERN = re.compile(r"^[A-Za-z0-9\-_.]{12}$")
 
@@ -107,6 +119,55 @@ def load_specs():
             product_id = row["id"].strip().zfill(3)
             specs[product_id] = row["specs"]
     return specs
+
+# 半角英数7文字（大文字A-Z + 数字0-9）
+ALPHABET = string.ascii_uppercase + string.digits
+CODE_LEN = 7
+
+def generate_reward_code() -> str:
+    return ''.join(secrets.choice(ALPHABET) for _ in range(CODE_LEN))
+
+def find_existing_code(pid: str):
+    if not pid:
+        return None
+    try:
+        # 完全一致
+        cell = rewards_ws.find(re.compile(rf'^{re.escape(pid)}$'))
+        if cell:
+            row = rewards_ws.row_values(cell.row)
+            return row[4] if len(row) >= 5 else None
+    except Exception:
+        pass
+    return None
+
+def is_code_duplicated(code: str) -> bool:
+    try:
+        # 完全一致
+        return rewards_ws.find(re.compile(rf'^{re.escape(code)}$')) is not None
+    except Exception:
+        return False
+
+def get_or_create_reward_code(pid: str, condition: str, site_label: str) -> str:
+    # 既存コードがあれば再利用
+    existing = find_existing_code(pid)
+    if existing:
+        return existing
+
+    # 新規発行（衝突回避を数回試みる）
+    for _ in range(5):
+        code = generate_reward_code()
+        if not is_code_duplicated(code):
+            ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            rewards_ws.append_row([ts, pid, condition, site_label, code])
+            return code
+
+    # 最後の保険
+    code = generate_reward_code()
+    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    rewards_ws.append_row([ts, pid, condition, site_label, code])
+    return code
+
+
 
 @app.route('/reset_session')
 def reset_session():
@@ -655,8 +716,16 @@ def guard_to_next():
 
 @app.route("/finish")
 def finish():
+    pid = session.get("participant_id", "")
+    condition = session.get("condition", "experiment")
+    site_label = "experiment"  # experimentサイト固定
+    
+    # 報酬コードを取得（既存あれば再利用、無ければ新規発行）
+    reward_code = get_or_create_reward_code(pid, condition, site_label)
+    
     log_action("実験終了", page="finish")
-    return render_template("finish.html")
+    return render_template("finish.html", reward_code=reward_code)
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

@@ -32,10 +32,11 @@
             background-color: #eafaf1;
             border: 2px dashed #27ae60;
             border-radius: 8px;
-            font-size: 1.5em;
+            font-size: 1.8em;
             color: #2c3e50;
             font-weight: bold;
             user-select: all;
+            letter-spacing: 2px;
         }
 
         p.note {
@@ -52,7 +53,12 @@
         <p>本日の実験にご参加いただきありがとうございました。<br>
 
         <p>ご回答いただきました内容と参加者様のIDはすでに保存されております。<br>
-            謝礼は株式会社クロス・マーケティング様より後日お渡しいたします。しばらくお待ちください。</p>
+        以下の報酬コードを控え、クラウドワークスのメッセージ機能から送信してください。</p>
+
+        <div class="reward-box">
+            {{ reward_code }}
+        </div>
+        <p class="note">※このコードは謝礼受け取り時に必要です。スクリーンショットなどで保管してください。</p>
 
         <p>本研究の結果は以下のGoogleドライブ内で公開いたします。公開の時期は2026年2月ごろを予定しております。<br>
         https://drive.google.com/drive/u/0/folders/1iHb3vmhDGrme66-V3Sbbv2SGrrkxffsK</p>
