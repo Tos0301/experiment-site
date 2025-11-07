@@ -266,7 +266,11 @@ def confirm_id():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     if 'condition' not in session:
-        session['condition'] = random.choice(['control', 'experiment'])
+        session['condition'] = random.choices(
+            ['control', 'experiment'],
+            weights=[0,31,0.69],
+            k=1    
+        )[0]
         log_action("条件決定", page="index")    
         print(f"🎯 Assigned new condition: {session['condition']}")
 
